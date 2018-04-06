@@ -17,3 +17,4 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 - Hans Ole Hatzel
 - Marcel Kamlot
 - Benjamin Warnke
+- Felix Ortmann
