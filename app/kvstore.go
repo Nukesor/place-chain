@@ -87,7 +87,7 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *abci.ResponseDeliverTx, err error) {
+func (app *KVStoreApplication) SetPixel(tx *types.Transaction) (res *abci.ResponseDeliverTx, err error) {
 	return app.client.DeliverTxSync([]byte("lel"))
 }
 

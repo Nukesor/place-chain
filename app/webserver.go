@@ -20,7 +20,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Bad request: %s", err)
 		return
 	}
-	_, err = self.App.SetPixel(pr.X, pr.Y)
+	_, err = self.App.SetPixel(pr.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}

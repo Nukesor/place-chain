@@ -5,8 +5,8 @@ import (
 )
 
 type PixelRequest struct {
-	X     uint8
-	Y     uint8
+	X     int
+	Y     int
 	Color Color
 }
 
@@ -16,4 +16,13 @@ func (pr *PixelRequest) String() string {
 	}
 	return fmt.Sprintf("Pixel{%d %d %d}",
 		pr.X, pr.Y, pr.Color)
+}
+
+func (pr *PixelRequest) ToTransaction() *Transaction {
+    return &Transaction{
+        pr.X,
+        pr.Y,
+        pr.Color,
+        "adf",
+    }
 }
