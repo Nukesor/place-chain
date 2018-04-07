@@ -54,9 +54,12 @@ $("#place_chain_canvas").click(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	setPixel(canvas, pos, colors[colorindex]);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
-	$.post("pixel", pixel)
-		.done(function(msg) {$("#statusconsole").html("msg = " + msg);})
-		.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
+	$.ajax("pixel", {
+        data : JSON.stringify(pixel),
+        contentType : 'application/json',
+        type : 'POST',
+    }).done(function(msg) {$("#statusconsole").html("msg = " + msg);})
+      .fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 $("#place_chain_color_chooser").click(function(evt) {
 	var rect = canvascolor.getBoundingClientRect();
