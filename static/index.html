@@ -76,6 +76,9 @@
 			var mousePos = getMousePos(canvas, evt);
 			var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
 //TODO request to node : set Pixel (mousePos.x,mousePos.y) to color (colorindex)
+		}, false);
+	canvas.addEventListener('click', function(evt) {
+			var mousePos = getMousePos(canvas, evt);
 			setPixel(canvas,mousePos.x,mousePos.y,colors[colorindex]);
 		}, false);
 	canvascolor.addEventListener('click', function(evt) {
