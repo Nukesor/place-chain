@@ -1,8 +1,10 @@
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
+var pixelnumberdisplay = document.getElementById('pixelnumberdisplay');
 var colorindex = 1;
 var size = 10;
 var lastdata;
+var countPixels = 0;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -98,9 +100,12 @@ $(function() {
 				for(j = 0; j < size; j++) {
 					if(data[i][j] != 0) {
 						setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+						countPixels = countPixels +1;
 					}
 				}
 			}
+			$("#pixelnumberdisplay").html("Number of Pixels: " + countPixels);
+			countPixels = 0;
 		});
 	}, 1000);
 	//TODO longpoll node : image changes
