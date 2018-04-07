@@ -99,3 +99,7 @@ $(function() {
 	//TODO longpoll node : my color change ? oder nicht ?
 });
 
+// Reload site to update canvas
+setInterval(() => {
+    window.location.reload(false);
+}, 1000);

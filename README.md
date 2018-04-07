@@ -1,10 +1,8 @@
 # PLACE CHAAAAAIN
 
 ### Setup:
-
-        go get github.com/satori/go.uuid
-        go get github.com/tendermint/abci/cmd/abci-cli
-        go get -u github.com/tendermint/tendermint/cmd/tendermint
+    
+    make setup
 
 ### How to run ?????
 - Run tendermint using `tendermint node`
