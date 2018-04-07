@@ -75,9 +75,15 @@ $(function() {
 			return;
 		}
 		height = data[0].length;
-		if(width == 0) {
+		if(width != height) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
 			return;
+		}
+		size = width;
+		for(i = 0; i < size; i++) {
+			for(j = 0; j < size; j++) {
+				setPixel(canvas,{x: i * pixelsize, y: j * pixelsize}, colors[data[i][j]]);
+			}
 		}
 	});
 	//TODO longpoll node : image changes
