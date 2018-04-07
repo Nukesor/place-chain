@@ -1,7 +1,7 @@
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var colorindex = 1;
-var size = 20;
+var size = 10;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -70,20 +70,29 @@ $("#place_chain_color_chooser").click(function(evt) {
 $(function() {
 	refreshColorChooser(canvascolor);
 	$.get("pixels", function(data) {
+		data = JSON.parse(data);
 		width = data.length;
+console.log("a");
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
 			return;
 		}
+console.log("b");
+console.log(width);
 		height = data[0].length;
+console.log(height);
+console.log(data);
 		if(width != height) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
 			return;
 		}
 		size = width;
+console.log(size);
 		for(i = 0; i < size; i++) {
 			for(j = 0; j < size; j++) {
-				setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+				if(colors[data[i][j]] != 0) {
+					setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+				}
 			}
 		}
 	});
