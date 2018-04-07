@@ -18,6 +18,9 @@ The right to set a pixel on the canvas is bought with a crypto coin. The crypto 
 
 When a pixel is set, this is done via a transaction of the blockchain. Painting the picture means traversing back the block chain until a value for a pixel is found.
 
+#### Example
+![example image](place-chain_example_0.png)
+
 ### Participants:
 
 - Arne Beer
