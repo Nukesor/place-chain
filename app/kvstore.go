@@ -183,7 +183,6 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 			}
 		}
 	}
-	fmt.Println(grid)
 	return &grid
 }
 
