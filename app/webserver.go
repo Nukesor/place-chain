@@ -56,5 +56,8 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/pixels/", self.getPixels)
 	port := "8080"
 	fmt.Printf("Listening on http://localhost:%s\n", port)
-	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+	if err != nil {
+		fmt.Printf("Could not serve via http: %s", err)
+	}
 }
