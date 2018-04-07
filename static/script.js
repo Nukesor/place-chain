@@ -98,8 +98,3 @@ $(function() {
 	//TODO longpoll node : my coins change
 	//TODO longpoll node : my color change ? oder nicht ?
 });
-
-// Reload site to update canvas
-setInterval(() => {
-    window.location.reload(false);
-}, 1000);
