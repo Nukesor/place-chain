@@ -87,7 +87,7 @@ $(function() {
 		size = width;
 		for(i = 0; i < size; i++) {
 			for(j = 0; j < size; j++) {
-				if(colors[data[i][j]] != 0) {
+				if(data[i][j] != 0) {
 					setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
 				}
 			}
