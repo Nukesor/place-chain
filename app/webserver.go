@@ -16,15 +16,19 @@ type CreationResponse struct {
 	color   string `json:"status"`
 }
 
-func (*WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
+func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var pr types.PixelRequest
 	err := decoder.Decode(&pr)
 	if err != nil {
 		panic(err)
 	}
+	res, err := self.App.SetPixel(pr.X, pr.Y)
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err)
+	}
 	defer r.Body.Close()
-	fmt.Fprintf(w, "You sent this: %v", pr)
+	fmt.Fprintf(w, "Response: %s", res)
 }
 
 func (*WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
