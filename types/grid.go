@@ -1,5 +1,3 @@
 package types
 
-type Grid struct {
-	Grid [][]Color
-}
+type Grid = [][]Color
