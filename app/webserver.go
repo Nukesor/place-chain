@@ -52,8 +52,8 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/style.less")
 	})
-	http.HandleFunc("/pixel/", self.setPixel)
-	http.HandleFunc("/pixels/", self.getPixels)
+	http.HandleFunc("/pixel", self.setPixel)
+	http.HandleFunc("/pixels", self.getPixels)
 	port := "8080"
 	fmt.Printf("Listening on http://localhost:%s\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)

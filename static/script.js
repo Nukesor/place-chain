@@ -1,7 +1,7 @@
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var colorindex = 1;
-var size = 20;
+var size = 10;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -54,9 +54,12 @@ $("#place_chain_canvas").click(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	setPixel(canvas, pos, colors[colorindex]);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
-	$.post("pixel", pixel)
-		.done(function(msg) {$("#statusconsole").html("msg = " + msg);})
-		.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
+	$.ajax("pixel", {
+        data : JSON.stringify(pixel),
+        contentType : 'application/json',
+        type : 'POST',
+    }).done(function(msg) {$("#statusconsole").html("msg = " + msg);})
+      .fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 $("#place_chain_color_chooser").click(function(evt) {
 	var rect = canvascolor.getBoundingClientRect();
@@ -70,6 +73,7 @@ $("#place_chain_color_chooser").click(function(evt) {
 $(function() {
 	refreshColorChooser(canvascolor);
 	$.get("pixels", function(data) {
+		data = JSON.parse(data);
 		width = data.length;
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
@@ -83,7 +87,9 @@ $(function() {
 		size = width;
 		for(i = 0; i < size; i++) {
 			for(j = 0; j < size; j++) {
-				setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+				if(data[i][j] != 0) {
+					setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+				}
 			}
 		}
 	});
