@@ -2,7 +2,7 @@
 
 ### Setup:
     
-    make setup
+    ./setup.sh
 
 ### How to run ?????
 - Run tendermint using `tendermint node`
