@@ -70,6 +70,8 @@ func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.Respon
 
 // tx is either "key=value" or just arbitrary bytes
 func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
+	fmt.Println("========================== DELIVER TX")
+
 	var key, value []byte
 	parts := bytes.Split(tx, []byte("="))
 	if len(parts) == 2 {
@@ -88,10 +90,12 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
 }
 
 func (app *KVStoreApplication) CheckTx(tx []byte) types.ResponseCheckTx {
+	fmt.Println("========================== CHECK TX")
 	return types.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
 func (app *KVStoreApplication) Commit() types.ResponseCommit {
+	fmt.Println("========================== COMMIT")
 	// Using a memdb - just return the big endian size of the db
 	appHash := make([]byte, 8)
 	binary.PutVarint(appHash, app.state.Size)
@@ -99,4 +103,30 @@ func (app *KVStoreApplication) Commit() types.ResponseCommit {
 	app.state.Height += 1
 	saveState(app.state)
 	return types.ResponseCommit{Data: appHash}
+}
+
+func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
+	fmt.Println("========================== QUERY")
+
+	if reqQuery.Prove {
+		value := app.state.db.Get(prefixKey(reqQuery.Data))
+		resQuery.Index = -1 // TODO make Proof return index
+		resQuery.Key = reqQuery.Data
+		resQuery.Value = value
+		if value != nil {
+			resQuery.Log = "exists"
+		} else {
+			resQuery.Log = "does not exist"
+		}
+		return
+	} else {
+		value := app.state.db.Get(prefixKey(reqQuery.Data))
+		resQuery.Value = value
+		if value != nil {
+			resQuery.Log = "exists"
+		} else {
+			resQuery.Log = "does not exist"
+		}
+		return
+	}
 }
