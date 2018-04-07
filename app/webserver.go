@@ -11,11 +11,6 @@ type WebServer struct {
 	App *KVStoreApplication
 }
 
-type CreationResponse struct {
-	message string `json:"message"`
-	color   string `json:"status"`
-}
-
 func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var pr types.PixelRequest
@@ -47,6 +42,12 @@ func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/index.html")
+	})
+	http.HandleFunc("/script.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/script.js")
+	})
+	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/style.less")
 	})
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels/", self.getPixels)
