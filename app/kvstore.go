@@ -4,6 +4,7 @@ import (
 	"../types"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -108,10 +109,10 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 
 func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
-	valid, message := validatePayload(tx)
-	if !valid {
+
+	if err := validatePayload(tx); err != nil {
 		fmt.Println("========================== INVALID TX")
-		fmt.Println(message)
+		fmt.Println(err)
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
@@ -177,20 +178,18 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 	return &grid
 }
 
-func validatePayload(tx []byte) (bool, string) {
+func validatePayload(tx []byte) error {
 	var message types.Transaction
-	err := json.Unmarshal(tx, &message)
-
-	if err != nil {
-		return false, fmt.Sprintf("Invalid json format %s", err)
+	if err := json.Unmarshal(tx, &message); err != nil {
+		return err
 	}
 
-	if (message.X > gridsize) || (message.X < 0) {
-		return false, "X coordinate is not in range."
+	if message.X > gridsize || message.X < 0 {
+		return errors.New("X coordinate is not in range.")
 	}
-	if (message.Y > gridsize) || (message.Y < 0) {
-		return false, "Y coordinate is not in range."
+	if message.Y > gridsize || message.Y < 0 {
+		return errors.New("Y coordinate is not in range.")
 	}
 
-	return true, ""
+	return nil
 }
