@@ -40,5 +40,7 @@ func (*WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels/", self.getPixels)
-	http.ListenAndServe(":8080", nil)
+	port := "8080"
+	fmt.Printf("Listening on http://localhost:%s\n", port)
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
