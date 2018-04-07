@@ -100,18 +100,3 @@ func (app *KVStoreApplication) Commit() types.ResponseCommit {
 	saveState(app.state)
 	return types.ResponseCommit{Data: appHash}
 }
-
-func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
-	if reqQuery.Prove {
-		resQuery.Index = -1 // TODO make Proof return index
-		resQuery.Key = reqQuery.Data
-	}
-	value := app.state.db.Get(prefixKey(reqQuery.Data))
-	resQuery.Value = value
-	if value != nil {
-		resQuery.Log = "exists"
-	} else {
-		resQuery.Log = "does not exist"
-	}
-	return
-}
