@@ -2,10 +2,17 @@
 <html>
 <head>
 	<title>place-chain</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<canvas id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<div class="jumbotron text-center">
+		place - chain
+	</div>
+	<div class="container">
+		<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
+	</div>
 <script>
 	function writeMessage(canvas, message) {
 		var context = canvas.getContext('2d');
@@ -24,7 +31,7 @@
 	function setPixel(canvas, x, y, r, g, b) {
 		var context = canvas.getContext('2d');
 		context.fillStyle = "rgb("+r+","+g+","+b+")";
-		context.fillRect( x, y, 1, 1 );
+		context.fillRect( x, y, 5, 5 );
 	}
 	var canvas = document.getElementById('place_chain_canvas');
 	var context = canvas.getContext('2d');
