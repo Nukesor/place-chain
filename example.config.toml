@@ -6,7 +6,8 @@
 
 moniker = "Your hostname"
 create_empty_blocks = false
-seeds = "176.9.9.254"
+# Comma separated list of ip addresses
+seeds = "176.9.9.254, 5.9.6.15"
 
 ##### main base config options #####
 
