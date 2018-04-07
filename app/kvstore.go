@@ -131,27 +131,16 @@ func (app *KVStoreApplication) Commit() abci.ResponseCommit {
 
 func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
 	fmt.Println("========================== QUERY")
-
-	if reqQuery.Prove {
 		value := app.state.Db.Get(prefixKey(reqQuery.Data))
+	if reqQuery.Prove {
 		resQuery.Index = -1 // TODO make Proof return index
 		resQuery.Key = reqQuery.Data
-		resQuery.Value = value
-		if value != nil {
-			resQuery.Log = "exists"
-		} else {
-			resQuery.Log = "does not exist"
-		}
-		return
+	}
+	resQuery.Value = value
+	if value != nil {
+		resQuery.Log = "exists"
 	} else {
-		value := app.state.Db.Get(prefixKey(reqQuery.Data))
-		resQuery.Value = value
-		if value != nil {
-			resQuery.Log = "exists"
-		} else {
-			resQuery.Log = "does not exist"
-		}
-		return
+		resQuery.Log = "does not exist"
 	}
 }
 
