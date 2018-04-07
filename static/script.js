@@ -75,22 +75,16 @@ $(function() {
 	$.get("pixels", function(data) {
 		data = JSON.parse(data);
 		width = data.length;
-console.log("a");
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
 			return;
 		}
-console.log("b");
-console.log(width);
 		height = data[0].length;
-console.log(height);
-console.log(data);
 		if(width != height) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
 			return;
 		}
 		size = width;
-console.log(size);
 		for(i = 0; i < size; i++) {
 			for(j = 0; j < size; j++) {
 				if(colors[data[i][j]] != 0) {
