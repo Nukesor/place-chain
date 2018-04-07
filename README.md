@@ -12,16 +12,16 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 
 ### Participants:
 
-- Rafael Epplee
 - Arne Beer
+- Rafael Epplee
 - Hans Ole Hatzel
 - Marcel Kamlot
-- Benjamin Warnke
 - Felix Ortmann
+- Benjamin Warnke
 
 
 ### Kern-Funktionalität
-- pixel Farbe wählen aus z.b. 8 vordefinierten Farben (kostet coins)
+- Pixel-Farbe wählen aus z.B. 8 vordefinierten Farben (kostet coins)
 - jeder Benutzer 1 node (keine Account-Verwaltung)
 - neue nodes starten mit x coins
 - setzen von Pixeln (kostet coins)
@@ -30,3 +30,4 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 ### mögliche-Features
 - Fläche zusammenhängender gleichfarbiger Pixel umfärben (kostet coins aber Mengenrabatt)
 - Hintergrundfarbe ändern (kostet extrem viele coins)
+- Farbe wechseln kostet extra coins
