@@ -4,8 +4,8 @@ import (
     app "./app"
     cmn "github.com/tendermint/tmlibs/common"
     "github.com/tendermint/abci/server"
-
 )
+
 func main() {
     kvStoreApp := app.NewKVStoreApplication()
     startApp(kvStoreApp)
@@ -14,6 +14,7 @@ func main() {
 func startApp(kvStoreApp *app.KVStoreApplication) error {
     // Start the ABCI listener
     svr, err := server.NewServer("tcp://localhost:46657", "socket", kvStoreApp)
+    go app.LaunchHTTP()
     if err != nil {
         panic(err)
     }
