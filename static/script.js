@@ -1,6 +1,6 @@
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
-var colorindex = 0;
+var colorindex = 1;
 var pixelsize = 20;
 var colors = [
 	{},
@@ -36,14 +36,16 @@ function refreshColorChooser(canvas) {
 	for (j = 0; j < 2; j++) {
 		for (i = 0; i < 4; i++) {
 			color = colors[i + j * 4 + 1];
-			if(i + j * 4 + 1 == colorindex) {
-				context.fillStyle = "grey"
-				context.fillRect(i * 100, j * 100, 100, 100);
-				context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-				context.fillRect(i * 100 + 5, j * 100 + 5, 90, 90);
-			}else{
-				context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-				context.fillRect(i * 100, j * 100, 100, 100);
+			if(colorindex != 0) {
+				if(i + j * 4 + 1 == colorindex) {
+					context.fillStyle = "grey"
+					context.fillRect(i * 100, j * 100, 100, 100);
+					context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+					context.fillRect(i * 100 + 5, j * 100 + 5, 90, 90);
+				} else {
+					context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+					context.fillRect(i * 100, j * 100, 100, 100);
+				}
 			}
 		}
 	}
