@@ -2,7 +2,6 @@ package app
 
 import (
 	"../types"
-	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -86,11 +85,12 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) SetPixel(transaction types.Transaction) (res *abci.ResponseDeliverTx, err error) {
-	bytes, err := json.Marshal(transaction)
+func (app *KVStoreApplication) SetPixel(tx *types.Transaction) (res *abci.ResponseDeliverTx, err error) {
+	bytes, err := json.Marshal(tx)
 	if err != nil {
 		return nil, err
 	}
+
 	return app.client.DeliverTxSync(bytes)
 }
 
