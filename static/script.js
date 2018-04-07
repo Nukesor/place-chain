@@ -80,27 +80,29 @@ $("#place_chain_color_chooser").click(function(evt) {
 
 $(function() {
 	refreshColorChooser(canvascolor);
-	$.get("pixels", function(data) {
-		lastdata = data;
-		width = data.length;
-		if(width == 0) {
-			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
-			return;
-		}
-		height = data[0].length;
-		if(width != height) {
-			$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
-			return;
-		}
-		size = width;
-		for(i = 0; i < size; i++) {
-			for(j = 0; j < size; j++) {
-				if(data[i][j] != 0) {
-					setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+	setInterval(function() {
+		$.get("pixels", function(data) {
+			lastdata = data;
+			width = data.length;
+			if(width == 0) {
+				$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
+				return;
+			}
+			height = data[0].length;
+			if(width != height) {
+				$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
+				return;
+			}
+			size = width;
+			for(i = 0; i < size; i++) {
+				for(j = 0; j < size; j++) {
+					if(data[i][j] != 0) {
+						setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+					}
 				}
 			}
-		}
-	});
+		});
+	}, 1000);
 	//TODO longpoll node : image changes
 	//TODO longpoll node : my coins change
 	//TODO longpoll node : my color change ? oder nicht ?
