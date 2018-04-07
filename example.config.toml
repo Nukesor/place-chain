@@ -7,7 +7,9 @@
 moniker = "Your hostname"
 create_empty_blocks = false
 # Comma separated list of ip addresses
-seeds = "176.9.9.254:46656,5.9.6.15:46656,46.4.89.126:46656"
+seeds = "176.9.9.254:46656"
+# Authenticated encryption
+auth_enc = false
 
 ##### main base config options #####
 
@@ -108,9 +110,6 @@ pex = true
 #
 # Does not work if the peer-exchange reactor is disabled.
 seed_mode = false
-
-# Authenticated encryption
-auth_enc = true
 
 # Comma separated list of peer IDs to keep private (will not be gossiped to other peers)
 private_peer_ids = ""

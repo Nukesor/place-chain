@@ -131,7 +131,7 @@ func (app *KVStoreApplication) Commit() abci.ResponseCommit {
 
 func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
 	fmt.Println("========================== QUERY")
-		value := app.state.Db.Get(prefixKey(reqQuery.Data))
+	value := app.state.Db.Get(prefixKey(reqQuery.Data))
 	if reqQuery.Prove {
 		resQuery.Index = -1 // TODO make Proof return index
 		resQuery.Key = reqQuery.Data
