@@ -13,16 +13,19 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="text-center">
+				<div class="center-block text-center" style="width:400px;height:50px;">
 					Click anywhere to fill the current Pixel with your current Color. Costs xxx Coins.
 				</div>
 				<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
 			</div>
 			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="text-center">
+				<div class="center-block text-center" style="width:400px;height:50px;">
 					Click to change your Color for xxx Coins.
 				</div>
 				<canvas class="center-block" id="place_chain_color_chooser" width="400" height="200" style="border:1px solid #000000;"></canvas>
+				<div class="center-block text-center" style="width:400px;height:50px;">
+					Your coins: <span id="place_chain_coins">0</span>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -83,6 +86,8 @@
 		}, false);
 	refreshColorChooser(canvascolor);
 //TODO longpoll node : image changes
+//TODO longpoll node : my coins change
+//TODO longpoll node : my color change ? oder nicht ?
 </script>
 </body>
 </html>
