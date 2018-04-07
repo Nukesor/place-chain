@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"../types"
 
 	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
-	"github.com/tendermint/abci/types"
+	abci "github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	dbm "github.com/tendermint/tmlibs/db"
 	"github.com/tendermint/tmlibs/log"
@@ -64,10 +65,10 @@ func prefixKey(key []byte) []byte {
 
 //---------------------------------------------------
 
-var _ types.Application = (*KVStoreApplication)(nil)
+var _ abci.Application = (*KVStoreApplication)(nil)
 
 type KVStoreApplication struct {
-	types.BaseApplication
+	abci.BaseApplication
 
 	state  State
 	client abcicli.Client
@@ -93,17 +94,17 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *types.ResponseDeliverTx, err error) {
+func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *abci.ResponseDeliverTx, err error) {
 	res, err = app.client.DeliverTxSync([]byte("lel"))
 	return
 }
 
-func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
-	return types.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
+func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
+	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
 }
 
 // tx is either "key=value" or just arbitrary bytes
-func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
+func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var message Message
 	json.Unmarshal(tx, &message)
@@ -118,21 +119,22 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
 		{[]byte("app.creator"), []byte("jae")},
 		{[]byte("app.key"), key},
 	}
-	return types.ResponseDeliverTx{Code: code.CodeTypeOK, Tags: tags}
+	app.GetGrid()
+	return abci.ResponseDeliverTx{Code: code.CodeTypeOK, Tags: tags}
 }
 
-func (app *KVStoreApplication) CheckTx(tx []byte) types.ResponseCheckTx {
+func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
 	valid, message := validatePayload(tx)
 	if !valid {
 		fmt.Println("========================== INVALID TX")
 		fmt.Println(message)
-		return types.ResponseCheckTx{Code: code.CodeTypeEncodingError}
+		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
-	return types.ResponseCheckTx{Code: code.CodeTypeOK}
+	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
-func (app *KVStoreApplication) Commit() types.ResponseCommit {
+func (app *KVStoreApplication) Commit() abci.ResponseCommit {
 	fmt.Println("========================== COMMIT")
 	// Using a memdb - just return the big endian size of the db
 	appHash := make([]byte, 8)
@@ -140,10 +142,10 @@ func (app *KVStoreApplication) Commit() types.ResponseCommit {
 	app.state.AppHash = appHash
 	app.state.Height += 1
 	saveState(app.state)
-	return types.ResponseCommit{Data: appHash}
+	return abci.ResponseCommit{Data: appHash}
 }
 
-func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
+func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
 	fmt.Println("========================== QUERY")
 
 	if reqQuery.Prove {
@@ -169,9 +171,37 @@ func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery type
 	}
 }
 
+func (app *KVStoreApplication) GetGrid() (*types.Grid) {
+	grid := make(types.Grid, gridsize)
+    for i := range grid {
+        grid[i] = make([]types.Color, gridsize)
+    }
+
+	fmt.Println(grid)
+
+	for x := 0; x < gridsize; x++ {
+		for y := 0; y < gridsize; y++ {
+			keyString := fmt.Sprintf("%d,%d", x, y)
+			key := []byte(keyString)
+
+			if app.state.db.Has(prefixKey(key)) {
+				// Get color out of key value store and convert it to int
+				colorBytes := app.state.db.Get(prefixKey(key))
+				colorString := string(colorBytes[:])
+				color, _ := strconv.Atoi(colorString)
+				grid[x][y] = types.DataTypesName[color]
+				fmt.Println(types.DataTypesName[color])
+			}
+		}
+	}
+
+	fmt.Println(grid)
+	return &grid
+}
+
 func validatePayload(tx []byte) (bool, string) {
-	tx_string := string(tx[:])
-	decoded, err := base64.StdEncoding.DecodeString(tx_string)
+	txString := string(tx[:])
+	decoded, err := base64.StdEncoding.DecodeString(txString)
 
 	if err != nil {
 		return false, fmt.Sprintf("Invalid base64 encoding %s", err)

@@ -33,7 +33,7 @@ var dataTypesId = map[Color]int{
     Red: 8,
 }
 
-var dataTypesName = map[int]Color{
+var DataTypesName = map[int]Color{
     0: White,
     1: Blue,
     2: Green,
@@ -59,7 +59,7 @@ func (c *Color) UnmarshalJSON(b []byte) error {
     if err != nil {
         return err
     }
-    col, ok := dataTypesName[s]
+    col, ok := DataTypesName[s]
     if !ok {
         return errors.New("Unknown color")
     }
