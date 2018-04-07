@@ -3,15 +3,15 @@ var canvascolor = document.getElementById('place_chain_color_chooser');
 var colorindex = 1;
 var pixelsize = 20;
 var colors = [
-	{},
-	{r: 0, g: 0, b: 0},
-	{r: 0, g: 0, b: 255},
-	{r: 0, g: 255, b: 0},
-	{r: 0, g: 255, b: 255},
-	{r: 255, g: 0, b: 0},
-	{r: 255, g: 0, b: 255},
-	{r: 255, g: 255, b: 0},
-	{r: 255, g: 255, b: 255},
+	{},			//error color
+	{r: 0, g: 0, b: 0}, 	//black
+	{r: 0, g: 0, b: 255}, 	//red
+	{r: 0, g: 255, b: 0},	//blue
+	{r: 0, g: 255, b: 255},	// purple
+	{r: 255, g: 0, b: 0}, 	// green
+	{r: 255, g: 0, b: 255},	// yellow
+	{r: 255, g: 255, b: 0},	// bright blue
+	{r: 255, g: 255, b: 255},	// white
 	];
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
