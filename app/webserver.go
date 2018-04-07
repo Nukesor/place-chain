@@ -6,7 +6,7 @@ import (
 )
 
 type WebServer struct {
-	app KVStoreApplication
+	App *KVStoreApplication
 }
 
 func (*WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
