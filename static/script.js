@@ -50,16 +50,18 @@ function refreshColorChooser(canvas) {
 		}
 	}
 }
+$("#place_chain_canvas").mousemove(function(evt) {
+	var pos = roundPos(getMousePos(canvas, evt));
+	var pixel = {x: pos.x / pixelsize, y: pos.y / pixelsize, color: colorindex};
+	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
+});
 $("#place_chain_canvas").click(function(evt) {
 	var pos = roundPos(getMousePos(canvas, evt));
-	pos.color = colorindex;
 	setPixel(canvas,pos,colors[colorindex]);
-	$.post("pixel",
-		pos,
-		function(data, status) {
-			$("#statusconsole").html("status = " + status + ", data = " + data);
-		}
-	);
+	var pixel = {x: pos.x / pixelsize, y: pos.y / pixelsize, color: colorindex};
+	$.post("pixel", pixel)
+		.done(function(msg) {$("#statusconsole").html("msg = " + msg);})
+		.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 $("#place_chain_color_chooser").click(function(evt) {
 		var mousePos = getMousePos(canvascolor, evt);
@@ -68,7 +70,7 @@ $("#place_chain_color_chooser").click(function(evt) {
 });
 $(function() {
 	refreshColorChooser(canvascolor);
-	$.get( "pixels", function(data) {
+	$.get("pixels", function(data) {
 		width = data.length;
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
