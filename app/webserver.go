@@ -1,10 +1,10 @@
 package app
 
 import (
+	"../types"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"../types"
 )
 
 type WebServer struct {
@@ -18,12 +18,12 @@ type CreationResponse struct {
 
 func (*WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-    var pr types.PixelRequest
-    err := decoder.Decode(&pr)
-    if err != nil {
-        panic(err)
-    }
-    defer r.Body.Close()
+	var pr types.PixelRequest
+	err := decoder.Decode(&pr)
+	if err != nil {
+		panic(err)
+	}
+	defer r.Body.Close()
 	fmt.Fprintf(w, "You sent this: %v", pr)
 }
 
