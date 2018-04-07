@@ -7,7 +7,7 @@ import (
 )
 
 type WebServer struct {
-	app KVStoreApplication
+	App *KVStoreApplication
 }
 
 type CreationResponse struct {

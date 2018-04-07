@@ -21,8 +21,8 @@ var (
 )
 
 var RootCmd = &cobra.Command{
-    Use:   "basecoin",
-    Short: "A cryptocurrency framework in Golang based on Tendermint-Core",
+    Use:   "Place chain",
+    Short: "Draw beautiful things using a tendermint blockchain.",
     PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
         level := viper.GetString(FlagLogLevel)
         logger, err = tmflags.ParseLogLevel(level, logger, defaultLogLevel)
