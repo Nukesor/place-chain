@@ -31,13 +31,6 @@ type State struct {
 	AppHash []byte `json:"app_hash"`
 }
 
-type Message struct {
-	x      int
-	y      int
-	color  int
-	nonnce string
-}
-
 func loadState(db dbm.DB) State {
 	stateBytes := db.Get(stateKey)
 	var state State
@@ -106,13 +99,13 @@ func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.Response
 // tx is either "key=value" or just arbitrary bytes
 func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
-	var message Message
+	var message types.Transaction
 	json.Unmarshal(tx, &message)
 
-	keyString := fmt.Sprintf("%d,%d", message.x, message.y)
+	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
 	key := []byte(keyString)
 
-	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(message.color)))
+	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
 	app.state.Size += 1
 
 	tags := []cmn.KVPair{
@@ -207,17 +200,17 @@ func validatePayload(tx []byte) (bool, string) {
 		return false, fmt.Sprintf("Invalid base64 encoding %s", err)
 	}
 
-	var message Message
+	var message types.Transaction
 	err = json.Unmarshal(decoded, &message)
 
 	if err != nil {
 		return false, fmt.Sprintf("Invalid json format %s", err)
 	}
 
-	if (message.x > gridsize) || (message.x < 0) {
+	if (message.X > gridsize) || (message.X < 0) {
 		return false, "X coordinate is not in range."
 	}
-	if (message.y > gridsize) || (message.y < 0) {
+	if (message.Y > gridsize) || (message.Y < 0) {
 		return false, "Y coordinate is not in range."
 	}
 
