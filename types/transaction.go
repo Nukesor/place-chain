@@ -8,7 +8,7 @@ type Transaction struct {
 	X     int
 	Y     int
 	Color Color
-	nonce string
+	Nonce string
 }
 
 func (tx *Transaction) String() string {
