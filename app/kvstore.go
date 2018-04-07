@@ -12,7 +12,6 @@ import (
 	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
 	abci "github.com/tendermint/abci/types"
-	cmn "github.com/tendermint/tmlibs/common"
 	dbm "github.com/tendermint/tmlibs/db"
 	"github.com/tendermint/tmlibs/log"
 )
@@ -99,7 +98,11 @@ func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.Response
 func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var message types.Transaction
-	json.Unmarshal(tx, &message)
+
+	txString := string(tx[:])
+	decoded, _ := base64.StdEncoding.DecodeString(txString)
+
+	json.Unmarshal(decoded, &message)
 
 	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
 	key := []byte(keyString)
@@ -107,12 +110,8 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
 	app.state.Size += 1
 
-	tags := []cmn.KVPair{
-		{[]byte("app.creator"), []byte("jae")},
-		{[]byte("app.key"), key},
-	}
 	app.GetGrid()
-	return abci.ResponseDeliverTx{Code: code.CodeTypeOK, Tags: tags}
+	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
 
 func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
@@ -169,7 +168,6 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 		grid[i] = make([]types.Color, gridsize)
 	}
 
-	fmt.Println(grid)
 
 	for x := 0; x < gridsize; x++ {
 		for y := 0; y < gridsize; y++ {
@@ -182,11 +180,9 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 				colorString := string(colorBytes[:])
 				color, _ := strconv.Atoi(colorString)
 				grid[x][y] = types.DataTypesName[color]
-				fmt.Println(types.DataTypesName[color])
 			}
 		}
 	}
-
 	fmt.Println(grid)
 	return &grid
 }

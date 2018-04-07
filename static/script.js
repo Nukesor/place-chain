@@ -2,6 +2,7 @@ var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var colorindex = 1;
 var size = 10;
+var lastdata;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -73,6 +74,7 @@ $("#place_chain_color_chooser").click(function(evt) {
 $(function() {
 	refreshColorChooser(canvascolor);
 	$.get("pixels", function(data) {
+		lastdata = data;
 		width = data.length;
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
