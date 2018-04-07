@@ -21,14 +21,22 @@ func (*WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	var pr types.PixelRequest
 	err := decoder.Decode(&pr)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Printf("Bad request: %s", err)
+		return
 	}
 	defer r.Body.Close()
 	fmt.Fprintf(w, "You sent this: %v", pr)
 }
 
 func (*WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "%s", r.URL.Query())
+	nums := []int{1, 2, 3}
+	b, err := json.Marshal(nums)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Printf("Error returning pixels: ", err)
+	}
+	w.Write(b)
 }
 
 func (self *WebServer) LaunchHTTP() {
