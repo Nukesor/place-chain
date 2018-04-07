@@ -73,7 +73,6 @@ $("#place_chain_color_chooser").click(function(evt) {
 $(function() {
 	refreshColorChooser(canvascolor);
 	$.get("pixels", function(data) {
-		data = JSON.parse(data);
 		width = data.length;
 		if(width == 0) {
 			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
