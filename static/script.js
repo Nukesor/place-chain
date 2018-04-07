@@ -64,7 +64,7 @@ $("#place_chain_canvas").click(function(evt) {
         data : JSON.stringify(pixel),
         contentType : 'application/json',
         type : 'POST',
-    }).done(function(msg) {$("#statusconsole").html("msg = " + msg);})
+    }).done(function(msg) {$("#statusconsole").html("msg = done");})
       .fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 
