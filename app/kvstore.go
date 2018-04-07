@@ -1,10 +1,11 @@
 package app
 
 import (
-	"bytes"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/tendermint/abci/example/code"
 	"github.com/tendermint/abci/types"
@@ -17,11 +18,20 @@ var (
 	kvPairPrefixKey = []byte("kvPairKey:")
 )
 
+const gridsize int = 20
+
 type State struct {
 	db      dbm.DB
 	Size    int64  `json:"size"`
 	Height  int64  `json:"height"`
 	AppHash []byte `json:"app_hash"`
+}
+
+type Message struct {
+	x      int
+	y      int
+	color  int
+	nonnce string
 }
 
 func loadState(db dbm.DB) State {
@@ -71,15 +81,13 @@ func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.Respon
 // tx is either "key=value" or just arbitrary bytes
 func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
+	var message Message
+	json.Unmarshal(tx, &message)
 
-	var key, value []byte
-	parts := bytes.Split(tx, []byte("="))
-	if len(parts) == 2 {
-		key, value = parts[0], parts[1]
-	} else {
-		key, value = tx, tx
-	}
-	app.state.db.Set(prefixKey(key), value)
+	keyString := fmt.Sprintf("%d,%d", message.x, message.y)
+	key := []byte(keyString)
+
+	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(message.color)))
 	app.state.Size += 1
 
 	tags := []cmn.KVPair{
@@ -91,6 +99,12 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
 
 func (app *KVStoreApplication) CheckTx(tx []byte) types.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
+	valid, message := validatePayload(tx)
+	if !valid {
+		fmt.Println("========================== INVALID TX")
+		fmt.Println(message)
+		return types.ResponseCheckTx{Code: code.CodeTypeEncodingError}
+	}
 	return types.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
@@ -129,4 +143,29 @@ func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery type
 		}
 		return
 	}
+}
+
+func validatePayload(tx []byte) (bool, string) {
+	tx_string := string(tx[:])
+	decoded, err := base64.StdEncoding.DecodeString(tx_string)
+
+	if err != nil {
+		return false, fmt.Sprintf("Invalid base64 encoding %s", err)
+	}
+
+	var message Message
+	err = json.Unmarshal(decoded, &message)
+
+	if err != nil {
+		return false, fmt.Sprintf("Invalid json format %s", err)
+	}
+
+	if (message.x > gridsize) || (message.x < 0) {
+		return false, "X coordinate is not in range."
+	}
+	if (message.y > gridsize) || (message.y < 0) {
+		return false, "Y coordinate is not in range."
+	}
+
+	return true, ""
 }

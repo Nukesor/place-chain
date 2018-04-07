@@ -1,6 +1,7 @@
 package app
 
 import (
+	"../types"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,21 +17,14 @@ type CreationResponse struct {
 }
 
 func (*WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
-	data := r.URL.Query()
-	var created CreationResponse
-	if data["x"] != nil && data["y"] != nil {
-		created = CreationResponse{
-			"Placed successfully!",
-			"Rainbow",
-		}
-	} else {
-		created = CreationResponse{
-			"Invalid request!",
-			"",
-		}
+	decoder := json.NewDecoder(r.Body)
+	var pr types.PixelRequest
+	err := decoder.Decode(&pr)
+	if err != nil {
+		panic(err)
 	}
-	b, _ := json.Marshal(created)
-	fmt.Fprintf(w, "%s", b)
+	defer r.Body.Close()
+	fmt.Fprintf(w, "You sent this: %v", pr)
 }
 
 func (*WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
