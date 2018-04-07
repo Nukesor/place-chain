@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
+	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
 	"github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
@@ -66,12 +67,21 @@ var _ types.Application = (*KVStoreApplication)(nil)
 type KVStoreApplication struct {
 	types.BaseApplication
 
-	state State
+	state  State
+	client abcicli.Client
 }
 
 func NewKVStoreApplication() *KVStoreApplication {
 	state := loadState(dbm.NewMemDB())
-	return &KVStoreApplication{state: state}
+	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", true)
+	if err != nil {
+		panic(err)
+	}
+	return &KVStoreApplication{state: state, client: client}
+}
+
+func (app *KVStoreApplication) SetPixel(x int, y int) {
+	app.client.DeliverTxSync([]byte("LELMAO"))
 }
 
 func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
