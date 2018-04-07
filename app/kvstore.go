@@ -75,17 +75,22 @@ type KVStoreApplication struct {
 
 func NewKVStoreApplication() *KVStoreApplication {
 	state := loadState(dbm.NewMemDB())
+	return &KVStoreApplication{state: state, client: nil}
+}
+
+func (app *KVStoreApplication) StartClient() error {
 	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	app.client = client
 	allowLevel, err := log.AllowLevel("debug")
 	logger := log.NewFilter(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), allowLevel)
 	client.SetLogger(logger.With("module", "abci-client"))
 	if err := client.Start(); err != nil {
-		panic(err)
+		return err
 	}
-	return &KVStoreApplication{state: state, client: client}
+	return nil
 }
 
 func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *types.ResponseDeliverTx, err error) {
