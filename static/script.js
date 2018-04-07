@@ -14,6 +14,7 @@ var colors = [
 	{r: 255, g: 255, b: 0},	// bright blue
 	{r: 255, g: 255, b: 255},	// white
 	];
+
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
@@ -21,12 +22,14 @@ function getMousePos(canvas, evt) {
 		y: ((evt.clientY - rect.top) / rect.height * size) | 0
 	};
 }
+
 function setPixel(canvas, pos, color) {
 	var rect = canvas.getBoundingClientRect();
 	var context = canvas.getContext('2d');
 	context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
 	context.fillRect(pos.x * rect.width / size , pos.y * rect.height / size, rect.width / size, rect.height / size);
 }
+
 function refreshColorChooser(canvas) {
 	var context = canvas.getContext('2d');
 	for (j = 0; j < 2; j++) {
@@ -46,11 +49,13 @@ function refreshColorChooser(canvas) {
 		}
 	}
 }
+
 $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
 });
+
 $("#place_chain_canvas").click(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	setPixel(canvas, pos, colors[colorindex]);
@@ -59,9 +64,10 @@ $("#place_chain_canvas").click(function(evt) {
         data : JSON.stringify(pixel),
         contentType : 'application/json',
         type : 'POST',
-    }).done(function(msg) {$("#statusconsole").html("msg = " + msg);})
+    }).done(function(msg) {$("#statusconsole").html("msg = done");})
       .fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
+
 $("#place_chain_color_chooser").click(function(evt) {
 	var rect = canvascolor.getBoundingClientRect();
 	var mousePos = {
@@ -71,35 +77,33 @@ $("#place_chain_color_chooser").click(function(evt) {
 	colorindex = mousePos.x + mousePos.y * 4 + 1;
 	refreshColorChooser(canvascolor);
 });
+
 $(function() {
 	refreshColorChooser(canvascolor);
-	$.get("pixels", function(data) {
-		lastdata = data;
-		width = data.length;
-		if(width == 0) {
-			$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
-			return;
-		}
-		height = data[0].length;
-		if(width != height) {
-			$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
-			return;
-		}
-		size = width;
-		for(i = 0; i < size; i++) {
-			for(j = 0; j < size; j++) {
-				if(data[i][j] != 0) {
-					setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+	setInterval(function() {
+		$.get("pixels", function(data) {
+			lastdata = data;
+			width = data.length;
+			if(width == 0) {
+				$("#statusconsole").html("error: requesting \"pixels\" returned zero width");
+				return;
+			}
+			height = data[0].length;
+			if(width != height) {
+				$("#statusconsole").html("error: requesting \"pixels\" returned not square area");
+				return;
+			}
+			size = width;
+			for(i = 0; i < size; i++) {
+				for(j = 0; j < size; j++) {
+					if(data[i][j] != 0) {
+						setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+					}
 				}
 			}
-		}
-	});
+		});
+	}, 1000);
 	//TODO longpoll node : image changes
 	//TODO longpoll node : my coins change
 	//TODO longpoll node : my color change ? oder nicht ?
 });
-
-// Reload site to update canvas
-setInterval(() => {
-    window.location.reload(false);
-}, 1000);
