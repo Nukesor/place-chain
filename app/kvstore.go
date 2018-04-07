@@ -1,13 +1,13 @@
 package app
 
 import (
+	"../types"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
-	"../types"
 
 	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
@@ -164,11 +164,11 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 	}
 }
 
-func (app *KVStoreApplication) GetGrid() (*types.Grid) {
+func (app *KVStoreApplication) GetGrid() *types.Grid {
 	grid := make(types.Grid, gridsize)
-    for i := range grid {
-        grid[i] = make([]types.Color, gridsize)
-    }
+	for i := range grid {
+		grid[i] = make([]types.Color, gridsize)
+	}
 
 	fmt.Println(grid)
 
