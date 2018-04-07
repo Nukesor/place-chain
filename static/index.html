@@ -10,15 +10,15 @@
 	<div class="jumbotron text-center">
 		place - chain
 	</div>
-	<div class="container">
+	<div class="container-fluid">
 		<div class="row">
-			<div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6" style="min-width:410">
+			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
 				<div class="text-center">
 					Click anywhere to fill the current Pixel with your current Color. Costs xxx Coins.
 				</div>
 				<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
 			</div>
-			<div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6" style="min-width:410">
+			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
 				<div class="text-center">
 					Click to change your Color for xxx Coins.
 				</div>
@@ -29,8 +29,8 @@
 <script>
 	var canvas = document.getElementById('place_chain_canvas');
 	var canvascolor = document.getElementById('place_chain_color_chooser');
-	var colorindex = 1;
-	colors=[
+	var colorindex = 0;
+	colors = [
 		{r:   0, g:   0, b:   0},
 		{r:   0, g:   0, b: 255},
 		{r:   0, g: 255, b:   0},
@@ -40,13 +40,6 @@
 		{r: 255, g: 255, b:   0},
 		{r: 255, g: 255, b: 255},
 		];
-	function writeMessage(canvas, message) {
-		var context = canvas.getContext('2d');
-//		context.clearRect(0, 0, canvas.width, canvas.height);
-		context.font = '18pt Calibri';
-		context.fillStyle = 'black';
-		context.fillText(message, 10, 25);
-	}
 	function getMousePos(canvas, evt) {
 		var rect = canvas.getBoundingClientRect();
 		return {
@@ -79,17 +72,17 @@
 	canvas.addEventListener('mousemove', function(evt) {
 			var mousePos = getMousePos(canvas, evt);
 			var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-//			writeMessage(canvas, message);
-
-			setPixel(canvas,mousePos.x,mousePos.y+10,colors[colorindex]);
-
+//TODO request to node : set Pixel (mousePos.x,mousePos.y) to color (colorindex)
+			setPixel(canvas,mousePos.x,mousePos.y,colors[colorindex]);
 		}, false);
 	canvascolor.addEventListener('click', function(evt) {
 			var mousePos = getMousePos(canvascolor, evt);
 			colorindex = ((mousePos.x / 100) | 0) + ((mousePos.y / 100) | 0) * 4;
+//TODO request to node : set my Color to (colorindex)
 			refreshColorChooser(canvascolor);
 		}, false);
 	refreshColorChooser(canvascolor);
+//TODO longpoll node : image changes
 </script>
 </body>
 </html>
