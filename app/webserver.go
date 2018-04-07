@@ -36,6 +36,7 @@ func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error returning pixels: ", err)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
 
