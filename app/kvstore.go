@@ -168,7 +168,6 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 		grid[i] = make([]types.Color, gridsize)
 	}
 
-
 	for x := 0; x < gridsize; x++ {
 		for y := 0; y < gridsize; y++ {
 			keyString := fmt.Sprintf("%d,%d", x, y)

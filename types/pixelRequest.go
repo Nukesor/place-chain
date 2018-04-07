@@ -19,10 +19,10 @@ func (pr *PixelRequest) String() string {
 }
 
 func (pr *PixelRequest) ToTransaction() *Transaction {
-    return &Transaction{
-        pr.X,
-        pr.Y,
-        pr.Color,
-        "adf",
-    }
+	return &Transaction{
+		pr.X,
+		pr.Y,
+		pr.Color,
+		"adf",
+	}
 }
