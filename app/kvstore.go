@@ -86,8 +86,12 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *abci.ResponseDeliverTx, err error) {
-	return app.client.DeliverTxSync([]byte("lel"))
+func (app *KVStoreApplication) SetPixel(transaction types.Transaction) (res *abci.ResponseDeliverTx, err error) {
+	bytes, err := json.Marshal(transaction)
+	if err != nil {
+		return nil, err
+	}
+	return app.client.DeliverTxSync(bytes)
 }
 
 func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
@@ -99,10 +103,7 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var message types.Transaction
 
-	txString := string(tx[:])
-	decoded, _ := base64.StdEncoding.DecodeString(txString)
-
-	json.Unmarshal(decoded, &message)
+	json.Unmarshal(tx, &message)
 
 	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
 	key := []byte(keyString)
@@ -188,15 +189,8 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 }
 
 func validatePayload(tx []byte) (bool, string) {
-	txString := string(tx[:])
-	decoded, err := base64.StdEncoding.DecodeString(txString)
-
-	if err != nil {
-		return false, fmt.Sprintf("Invalid base64 encoding %s", err)
-	}
-
 	var message types.Transaction
-	err = json.Unmarshal(decoded, &message)
+	err := json.Unmarshal(tx, &message)
 
 	if err != nil {
 		return false, fmt.Sprintf("Invalid json format %s", err)
