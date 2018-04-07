@@ -1,9 +1,9 @@
 package app
 
 import (
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
-    "encoding/base64"
 	"fmt"
 	"strconv"
 
@@ -28,10 +28,10 @@ type State struct {
 }
 
 type Message struct {
-    x int
-    y int
-    color int
-    nonnce string
+	x      int
+	y      int
+	color  int
+	nonnce string
 }
 
 func loadState(db dbm.DB) State {
@@ -100,7 +100,7 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
 func (app *KVStoreApplication) CheckTx(tx []byte) types.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
 	valid, message := validatePayload(tx)
-	if (!valid) {
+	if !valid {
 		fmt.Println("========================== INVALID TX")
 		fmt.Println(message)
 		return types.ResponseCheckTx{Code: code.CodeTypeEncodingError}
