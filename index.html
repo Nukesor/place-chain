@@ -11,9 +11,35 @@
 		place - chain
 	</div>
 	<div class="container">
-		<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
+		<div class="row">
+			<div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6" style="min-width:410">
+				<div class="text-center">
+					Click anywhere to fill the current Pixel with your current Color. Costs xxx Coins.
+				</div>
+				<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="border:1px solid #000000;"></canvas>
+			</div>
+			<div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6" style="min-width:410">
+				<div class="text-center">
+					Click to change your Color for xxx Coins.
+				</div>
+				<canvas class="center-block" id="place_chain_color_chooser" width="400" height="200" style="border:1px solid #000000;"></canvas>
+			</div>
+		</div>
 	</div>
 <script>
+	var canvas = document.getElementById('place_chain_canvas');
+	var canvascolor = document.getElementById('place_chain_color_chooser');
+	var colorindex = 1;
+	colors=[
+		{r:   0, g:   0, b:   0},
+		{r:   0, g:   0, b: 255},
+		{r:   0, g: 255, b:   0},
+		{r:   0, g: 255, b: 255},
+		{r: 255, g:   0, b:   0},
+		{r: 255, g:   0, b: 255},
+		{r: 255, g: 255, b:   0},
+		{r: 255, g: 255, b: 255},
+		];
 	function writeMessage(canvas, message) {
 		var context = canvas.getContext('2d');
 //		context.clearRect(0, 0, canvas.width, canvas.height);
@@ -28,21 +54,42 @@
 			y: evt.clientY - rect.top
 		};
 	}
-	function setPixel(canvas, x, y, r, g, b) {
+	function setPixel(canvas, x, y, color) {
 		var context = canvas.getContext('2d');
-		context.fillStyle = "rgb("+r+","+g+","+b+")";
+		context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
 		context.fillRect( x, y, 5, 5 );
 	}
-	var canvas = document.getElementById('place_chain_canvas');
-	var context = canvas.getContext('2d');
+	function refreshColorChooser(canvas) {
+		var context = canvas.getContext('2d');
+		for (j = 0; j < 2; j++) {
+			for (i = 0; i < 4; i++) {
+				color=colors[i+j*4];
+				if(i+j*4 == colorindex){
+					context.fillStyle = "grey"
+					context.fillRect(i*100,j*100,100,100);
+					context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
+					context.fillRect(i*100+5,j*100+5,90,90);
+				}else{
+					context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
+					context.fillRect(i*100,j*100,100,100);
+				}
+			}
+		}
+	}
 	canvas.addEventListener('mousemove', function(evt) {
 			var mousePos = getMousePos(canvas, evt);
 			var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-			writeMessage(canvas, message);
+//			writeMessage(canvas, message);
 
-			setPixel(canvas,mousePos.x,mousePos.y,mousePos.x%256,1,mousePos.y%256);
+			setPixel(canvas,mousePos.x,mousePos.y+10,colors[colorindex]);
 
 		}, false);
+	canvascolor.addEventListener('click', function(evt) {
+			var mousePos = getMousePos(canvascolor, evt);
+			colorindex = ((mousePos.x / 100) | 0) + ((mousePos.y / 100) | 0) * 4;
+			refreshColorChooser(canvascolor);
+		}, false);
+	refreshColorChooser(canvascolor);
 </script>
 </body>
 </html>
