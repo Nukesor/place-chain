@@ -73,15 +73,16 @@ type KVStoreApplication struct {
 
 func NewKVStoreApplication() *KVStoreApplication {
 	state := loadState(dbm.NewMemDB())
-	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", true)
+	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
 	if err != nil {
 		panic(err)
 	}
 	return &KVStoreApplication{state: state, client: client}
 }
 
-func (app *KVStoreApplication) SetPixel(x int, y int) {
-	app.client.DeliverTxSync([]byte("LELMAO"))
+func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *types.ResponseDeliverTx, err error) {
+	res, err = app.client.DeliverTxSync([]byte("LELMAO"))
+	return
 }
 
 func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
