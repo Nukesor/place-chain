@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 
 	abcicli "github.com/tendermint/abci/client"
@@ -12,6 +13,7 @@ import (
 	"github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	dbm "github.com/tendermint/tmlibs/db"
+	"github.com/tendermint/tmlibs/log"
 )
 
 var (
@@ -77,11 +79,17 @@ func NewKVStoreApplication() *KVStoreApplication {
 	if err != nil {
 		panic(err)
 	}
+	allowLevel, err := log.AllowLevel("debug")
+	logger := log.NewFilter(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), allowLevel)
+	client.SetLogger(logger.With("module", "abci-client"))
+	if err := client.Start(); err != nil {
+		panic(err)
+	}
 	return &KVStoreApplication{state: state, client: client}
 }
 
 func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *types.ResponseDeliverTx, err error) {
-	res, err = app.client.DeliverTxSync([]byte("LELMAO"))
+	res, err = app.client.DeliverTxSync([]byte("lel"))
 	return
 }
 
