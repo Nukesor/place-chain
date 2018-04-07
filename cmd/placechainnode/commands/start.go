@@ -34,17 +34,16 @@ func init() {
 
 func startCmd(cmd *cobra.Command, args []string) error {
 	placeChainApp := app.NewKVStoreApplication()
-	startApp(placeChainApp)
-	return nil
+	return startApp(placeChainApp)
 }
 
 func startApp(placeChainApp *app.KVStoreApplication) error {
 	// Start the ABCI listener
 	addr := viper.GetString(FlagAddress)
-	go (&app.WebServer{}).LaunchHTTP()
+	go (&app.WebServer{placeChainApp}).LaunchHTTP()
 	svr, err := server.NewServer(addr, "socket", placeChainApp)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	svr.Start()
 
