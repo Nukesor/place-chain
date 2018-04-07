@@ -88,8 +88,7 @@ func (app *KVStoreApplication) StartClient() error {
 }
 
 func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *abci.ResponseDeliverTx, err error) {
-	res, err = app.client.DeliverTxSync([]byte("lel"))
-	return
+	return app.client.DeliverTxSync([]byte("lel"))
 }
 
 func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
