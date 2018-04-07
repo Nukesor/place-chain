@@ -22,32 +22,25 @@ var (
 
 const gridsize int = 20
 
-type State struct {
-	db      dbm.DB
-	Size    int64  `json:"size"`
-	Height  int64  `json:"height"`
-	AppHash []byte `json:"app_hash"`
-}
-
-func loadState(db dbm.DB) State {
+func loadState(db dbm.DB) types.AppState {
 	stateBytes := db.Get(stateKey)
-	var state State
+	var state types.AppState
 	if len(stateBytes) != 0 {
 		err := json.Unmarshal(stateBytes, &state)
 		if err != nil {
 			panic(err)
 		}
 	}
-	state.db = db
+	state.Db = db
 	return state
 }
 
-func saveState(state State) {
+func saveState(state types.AppState) {
 	stateBytes, err := json.Marshal(state)
 	if err != nil {
 		panic(err)
 	}
-	state.db.Set(stateKey, stateBytes)
+	state.Db.Set(stateKey, stateBytes)
 }
 
 func prefixKey(key []byte) []byte {
@@ -61,7 +54,7 @@ var _ abci.Application = (*KVStoreApplication)(nil)
 type KVStoreApplication struct {
 	abci.BaseApplication
 
-	state  State
+	state  types.AppState
 	client abcicli.Client
 }
 
@@ -98,7 +91,6 @@ func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.Response
 	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
 }
 
-// tx is either "key=value" or just arbitrary bytes
 func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var message types.Transaction
@@ -108,10 +100,9 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
 	key := []byte(keyString)
 
-	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
+	app.state.Db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
 	app.state.Size += 1
 
-	app.GetGrid()
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
 
@@ -141,7 +132,7 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 	fmt.Println("========================== QUERY")
 
 	if reqQuery.Prove {
-		value := app.state.db.Get(prefixKey(reqQuery.Data))
+		value := app.state.Db.Get(prefixKey(reqQuery.Data))
 		resQuery.Index = -1 // TODO make Proof return index
 		resQuery.Key = reqQuery.Data
 		resQuery.Value = value
@@ -152,7 +143,7 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 		}
 		return
 	} else {
-		value := app.state.db.Get(prefixKey(reqQuery.Data))
+		value := app.state.Db.Get(prefixKey(reqQuery.Data))
 		resQuery.Value = value
 		if value != nil {
 			resQuery.Log = "exists"
@@ -174,9 +165,9 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 			keyString := fmt.Sprintf("%d,%d", x, y)
 			key := []byte(keyString)
 
-			if app.state.db.Has(prefixKey(key)) {
+			if app.state.Db.Has(prefixKey(key)) {
 				// Get color out of key value store and convert it to int
-				colorBytes := app.state.db.Get(prefixKey(key))
+				colorBytes := app.state.Db.Get(prefixKey(key))
 				colorString := string(colorBytes[:])
 				color, _ := strconv.Atoi(colorString)
 				grid[x][y] = types.DataTypesName[color]
