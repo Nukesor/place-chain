@@ -19,10 +19,16 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 }
-function setPixel(canvas, x, y, color) {
+function roundPos(pos) {
+	return {
+		x: ((pos.x / pixelsize) | 0) * pixelsize,
+		y: ((pos.y / pixelsize) | 0) * pixelsize,
+	};
+}
+function setPixel(canvas, pos, color) {
 	var context = canvas.getContext('2d');
 	context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
-	context.fillRect( x, y, pixelsize, pixelsize );
+	context.fillRect( pos.x, pos.y, pixelsize, pixelsize );
 }
 function refreshColorChooser(canvas) {
 	var context = canvas.getContext('2d');
@@ -31,25 +37,22 @@ function refreshColorChooser(canvas) {
 			color=colors[i+j*4];
 			if(i+j*4 == colorindex){
 				context.fillStyle = "grey"
-				context.fillRect(i*100,j*100,100,100);
-				context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
-				context.fillRect(i*100+5,j*100+5,90,90);
+				context.fillRect(i * 100,j * 100, 100, 100);
+				context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+				context.fillRect(i * 100 + 5, j * 100 + 5, 90, 90);
 			}else{
-				context.fillStyle = "rgb("+color.r+","+color.g+","+color.b+")";
-				context.fillRect(i*100,j*100,100,100);
+				context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
+				context.fillRect(i * 100, j * 100, 100, 100);
 			}
 		}
 	}
 }
 $("#place_chain_canvas").click(function(evt){
-	var mousePos = getMousePos(canvas, evt);
-	var xPos = mousePos.x;
-	xPos = xPos - (xPos % pixelsize);
-	var yPos = mousePos.y;
-	yPos = yPos - (yPos % pixelsize);
-	setPixel(canvas,xPos,yPos,colors[colorindex]);
+	var pos = roundPos(getMousePos(canvas, evt));
+	pos.color = colorindex;
+	setPixel(canvas,pos,colors[colorindex]);
 	$.post("pixel",
-		{x:xPos,y:yPos,color:colorindex},
+		pos,
 		function(data, status){
 			$("#statusconsole").html("status = " + status + ", data = " + data);
 		}
