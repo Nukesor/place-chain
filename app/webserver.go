@@ -20,12 +20,12 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Bad request: %s", err)
 		return
 	}
+	defer r.Body.Close()
 	_, err = self.App.SetPixel(pr.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}
-	defer r.Body.Close()
-	fmt.Fprintf(w, "OK")
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
