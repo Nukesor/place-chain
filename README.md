@@ -1,5 +1,9 @@
 # PLACE CHAAAAAIN
 
+### How to run ?????
+- Run tendermint using `tendermint node`
+- Run our application: `go run cmd/placechainnode/main.go start`
+
 ### Steps:
 
 Inspired by r/place (last years reddit april prank).
