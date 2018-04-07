@@ -1,7 +1,7 @@
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var colorindex = 1;
-var pixelsize = 20;
+var size = 20;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -16,20 +16,15 @@ var colors = [
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
-		x: evt.clientX - rect.left,
-		y: evt.clientY - rect.top
-	};
-}
-function roundPos(pos) {
-	return {
-		x: ((pos.x / pixelsize) | 0) * pixelsize,
-		y: ((pos.y / pixelsize) | 0) * pixelsize,
+		x: ((evt.clientX - rect.left) / rect.width * size) | 0,
+		y: ((evt.clientY - rect.top) / rect.height * size) | 0
 	};
 }
 function setPixel(canvas, pos, color) {
+	var rect = canvas.getBoundingClientRect();
 	var context = canvas.getContext('2d');
 	context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
-	context.fillRect( pos.x, pos.y, pixelsize, pixelsize );
+	context.fillRect(pos.x * rect.width / size , pos.y * rect.height / size, rect.width / size, rect.height / size);
 }
 function refreshColorChooser(canvas) {
 	var context = canvas.getContext('2d');
@@ -51,22 +46,26 @@ function refreshColorChooser(canvas) {
 	}
 }
 $("#place_chain_canvas").mousemove(function(evt) {
-	var pos = roundPos(getMousePos(canvas, evt));
-	var pixel = {x: pos.x / pixelsize, y: pos.y / pixelsize, color: colorindex};
+	var pos = getMousePos(canvas, evt);
+	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
 });
 $("#place_chain_canvas").click(function(evt) {
-	var pos = roundPos(getMousePos(canvas, evt));
-	setPixel(canvas,pos,colors[colorindex]);
-	var pixel = {x: pos.x / pixelsize, y: pos.y / pixelsize, color: colorindex};
+	var pos = getMousePos(canvas, evt);
+	setPixel(canvas, pos, colors[colorindex]);
+	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$.post("pixel", pixel)
 		.done(function(msg) {$("#statusconsole").html("msg = " + msg);})
 		.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 $("#place_chain_color_chooser").click(function(evt) {
-		var mousePos = getMousePos(canvascolor, evt);
-		colorindex = ((mousePos.x / 100) | 0) + ((mousePos.y / 100) | 0) * 4 + 1;
-		refreshColorChooser(canvascolor);
+	var rect = canvascolor.getBoundingClientRect();
+	var mousePos = {
+		x: ((evt.clientX - rect.left) / rect.width * 4) | 0,
+		y: ((evt.clientY - rect.top) / rect.height * 2) | 0
+	};
+	colorindex = mousePos.x + mousePos.y * 4 + 1;
+	refreshColorChooser(canvascolor);
 });
 $(function() {
 	refreshColorChooser(canvascolor);
@@ -84,7 +83,7 @@ $(function() {
 		size = width;
 		for(i = 0; i < size; i++) {
 			for(j = 0; j < size; j++) {
-				setPixel(canvas,{x: i * pixelsize, y: j * pixelsize}, colors[data[i][j]]);
+				setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
 			}
 		}
 	});
