@@ -24,6 +24,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	_, err = self.App.SetPixel(pr.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
+		return
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
