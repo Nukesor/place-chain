@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
 	commands "./commands"
 	"github.com/tendermint/tmlibs/cli"
+	"os"
 )
 
 func main() {
