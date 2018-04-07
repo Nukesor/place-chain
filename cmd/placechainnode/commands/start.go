@@ -46,6 +46,7 @@ func startApp(placeChainApp *app.KVStoreApplication) error {
 		return err
 	}
 	svr.Start()
+	placeChainApp.StartClient()
 
 	// Wait forever
 	cmn.TrapSignal(func() {

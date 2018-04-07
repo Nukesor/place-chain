@@ -33,17 +33,21 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Response: %s", res)
 }
 
-func (*WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
-	nums := []int{1, 2, 3}
-	b, err := json.Marshal(nums)
+func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
+	data := self.App.GetGrid()
+	b, err := json.Marshal(data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Printf("Error returning pixels: ", err)
+		return
 	}
 	w.Write(b)
 }
 
 func (self *WebServer) LaunchHTTP() {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/index.html")
+	})
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels/", self.getPixels)
 	port := "8080"

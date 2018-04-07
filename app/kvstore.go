@@ -1,17 +1,20 @@
 package app
 
 import (
+	"../types"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 
 	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
-	"github.com/tendermint/abci/types"
+	abci "github.com/tendermint/abci/types"
 	cmn "github.com/tendermint/tmlibs/common"
 	dbm "github.com/tendermint/tmlibs/db"
+	"github.com/tendermint/tmlibs/log"
 )
 
 var (
@@ -26,13 +29,6 @@ type State struct {
 	Size    int64  `json:"size"`
 	Height  int64  `json:"height"`
 	AppHash []byte `json:"app_hash"`
-}
-
-type Message struct {
-	x      int
-	y      int
-	color  int
-	nonnce string
 }
 
 func loadState(db dbm.DB) State {
@@ -62,10 +58,10 @@ func prefixKey(key []byte) []byte {
 
 //---------------------------------------------------
 
-var _ types.Application = (*KVStoreApplication)(nil)
+var _ abci.Application = (*KVStoreApplication)(nil)
 
 type KVStoreApplication struct {
-	types.BaseApplication
+	abci.BaseApplication
 
 	state  State
 	client abcicli.Client
@@ -73,53 +69,65 @@ type KVStoreApplication struct {
 
 func NewKVStoreApplication() *KVStoreApplication {
 	state := loadState(dbm.NewMemDB())
-	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
-	if err != nil {
-		panic(err)
-	}
-	return &KVStoreApplication{state: state, client: client}
+	return &KVStoreApplication{state: state, client: nil}
 }
 
-func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *types.ResponseDeliverTx, err error) {
-	res, err = app.client.DeliverTxSync([]byte("LELMAO"))
+func (app *KVStoreApplication) StartClient() error {
+	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
+	if err != nil {
+		return err
+	}
+	app.client = client
+	allowLevel, err := log.AllowLevel("debug")
+	logger := log.NewFilter(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), allowLevel)
+	client.SetLogger(logger.With("module", "abci-client"))
+	if err := client.Start(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (app *KVStoreApplication) SetPixel(x uint8, y uint8) (res *abci.ResponseDeliverTx, err error) {
+	res, err = app.client.DeliverTxSync([]byte("lel"))
 	return
 }
 
-func (app *KVStoreApplication) Info(req types.RequestInfo) (resInfo types.ResponseInfo) {
-	return types.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
+func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
+	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
 }
 
 // tx is either "key=value" or just arbitrary bytes
-func (app *KVStoreApplication) DeliverTx(tx []byte) types.ResponseDeliverTx {
+func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
-	var message Message
+	var message types.Transaction
 	json.Unmarshal(tx, &message)
 
-	keyString := fmt.Sprintf("%d,%d", message.x, message.y)
+	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
 	key := []byte(keyString)
 
-	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(message.color)))
+	app.state.db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
 	app.state.Size += 1
 
 	tags := []cmn.KVPair{
 		{[]byte("app.creator"), []byte("jae")},
 		{[]byte("app.key"), key},
 	}
-	return types.ResponseDeliverTx{Code: code.CodeTypeOK, Tags: tags}
+	app.GetGrid()
+	return abci.ResponseDeliverTx{Code: code.CodeTypeOK, Tags: tags}
 }
 
-func (app *KVStoreApplication) CheckTx(tx []byte) types.ResponseCheckTx {
+func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
 	valid, message := validatePayload(tx)
 	if !valid {
 		fmt.Println("========================== INVALID TX")
 		fmt.Println(message)
-		return types.ResponseCheckTx{Code: code.CodeTypeEncodingError}
+		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
-	return types.ResponseCheckTx{Code: code.CodeTypeOK}
+	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
-func (app *KVStoreApplication) Commit() types.ResponseCommit {
+func (app *KVStoreApplication) Commit() abci.ResponseCommit {
 	fmt.Println("========================== COMMIT")
 	// Using a memdb - just return the big endian size of the db
 	appHash := make([]byte, 8)
@@ -127,10 +135,10 @@ func (app *KVStoreApplication) Commit() types.ResponseCommit {
 	app.state.AppHash = appHash
 	app.state.Height += 1
 	saveState(app.state)
-	return types.ResponseCommit{Data: appHash}
+	return abci.ResponseCommit{Data: appHash}
 }
 
-func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery types.ResponseQuery) {
+func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
 	fmt.Println("========================== QUERY")
 
 	if reqQuery.Prove {
@@ -156,25 +164,53 @@ func (app *KVStoreApplication) Query(reqQuery types.RequestQuery) (resQuery type
 	}
 }
 
+func (app *KVStoreApplication) GetGrid() *types.Grid {
+	grid := make(types.Grid, gridsize)
+	for i := range grid {
+		grid[i] = make([]types.Color, gridsize)
+	}
+
+	fmt.Println(grid)
+
+	for x := 0; x < gridsize; x++ {
+		for y := 0; y < gridsize; y++ {
+			keyString := fmt.Sprintf("%d,%d", x, y)
+			key := []byte(keyString)
+
+			if app.state.db.Has(prefixKey(key)) {
+				// Get color out of key value store and convert it to int
+				colorBytes := app.state.db.Get(prefixKey(key))
+				colorString := string(colorBytes[:])
+				color, _ := strconv.Atoi(colorString)
+				grid[x][y] = types.DataTypesName[color]
+				fmt.Println(types.DataTypesName[color])
+			}
+		}
+	}
+
+	fmt.Println(grid)
+	return &grid
+}
+
 func validatePayload(tx []byte) (bool, string) {
-	tx_string := string(tx[:])
-	decoded, err := base64.StdEncoding.DecodeString(tx_string)
+	txString := string(tx[:])
+	decoded, err := base64.StdEncoding.DecodeString(txString)
 
 	if err != nil {
 		return false, fmt.Sprintf("Invalid base64 encoding %s", err)
 	}
 
-	var message Message
+	var message types.Transaction
 	err = json.Unmarshal(decoded, &message)
 
 	if err != nil {
 		return false, fmt.Sprintf("Invalid json format %s", err)
 	}
 
-	if (message.x > gridsize) || (message.x < 0) {
+	if (message.X > gridsize) || (message.X < 0) {
 		return false, "X coordinate is not in range."
 	}
-	if (message.y > gridsize) || (message.y < 0) {
+	if (message.Y > gridsize) || (message.Y < 0) {
 		return false, "Y coordinate is not in range."
 	}
 
