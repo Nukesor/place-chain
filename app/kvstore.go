@@ -142,6 +142,7 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 	} else {
 		resQuery.Log = "does not exist"
 	}
+	return
 }
 
 func (app *KVStoreApplication) GetGrid() *types.Grid {
