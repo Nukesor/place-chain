@@ -20,12 +20,12 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Bad request: %s", err)
 		return
 	}
-	res, err := self.App.SetPixel(pr.X, pr.Y)
+	_, err = self.App.SetPixel(pr.X, pr.Y)
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 	}
 	defer r.Body.Close()
-	fmt.Fprintf(w, "Response: %s", res)
+	fmt.Fprintf(w, "OK")
 }
 
 func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
@@ -50,8 +50,8 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/style.less")
 	})
-	http.HandleFunc("/pixel", self.setPixel)
-	http.HandleFunc("/pixels", self.getPixels)
+	http.HandleFunc("/pixel/", self.setPixel)
+	http.HandleFunc("/pixels/", self.getPixels)
 	port := "8080"
 	fmt.Printf("Listening on http://localhost:%s\n", port)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
