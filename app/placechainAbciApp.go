@@ -184,23 +184,6 @@ func (app *PlacechainApp) GetGrid() *types.Grid {
 	return &grid
 }
 
-func validateTransactionBytes(txBytes []byte) bool {
-	var tx types.TransactionWithType
-	json.Unmarshal(txBytes, &tx)
-	isValid := false
-	fmt.Println("validate", string(txBytes))
-	if tx.Type == types.PIXEL_TRANSACTION {
-		var pt types.PixelTransaction
-		json.Unmarshal(txBytes, &pt)
-		isValid = pt.IsValid()
-	} else if tx.Type == types.REGISTER_TRANSACTION {
-		var rt types.RegisterTransaction
-		json.Unmarshal(txBytes, &rt)
-		isValid = rt.IsValid()
-	}
-	return isValid
-}
-
 func toTransaction(txBytes []byte) (types.Transaction, error) {
 	var tx types.TransactionWithType
 	json.Unmarshal(txBytes, &tx)
