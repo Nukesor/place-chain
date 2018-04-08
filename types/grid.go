@@ -1,3 +1,3 @@
 package types
 
-type Grid = [][]Color
+type Grid = [][]Pixel
