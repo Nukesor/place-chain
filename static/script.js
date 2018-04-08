@@ -82,11 +82,12 @@ $("#place_chain_color_chooser").click(function(evt) {
 });
 
 $("#register_button").click(function(evt) {
-	console.log("bla");
+console.log("bla");
 	name = $("#name_input").value;
 	bio = $("#bio_input").value;
-	privkey = crypto.genPrivKeyEd25519();
-	$("#p_privkey").value = privkey;
+	privkey = tendermintcrypto.genPrivKeyEd25519().bytes;
+console.log(privkey);
+	$("#p_privkey").html = privkey;
 	$("#loginregister_div").hide();
 	$("#profile_div").show();
 });
