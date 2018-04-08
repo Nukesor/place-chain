@@ -84,7 +84,6 @@ func (app *KVStoreApplication) SetPixel(tx *types.Transaction) (res *abci.Respon
 	if err != nil {
 		return nil, err
 	}
-
 	return app.client.DeliverTxSync(bytes)
 }
 
@@ -148,9 +147,8 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 func (app *KVStoreApplication) GetGrid() *types.Grid {
 	grid := make(types.Grid, gridsize)
 	for i := range grid {
-		grid[i] = make([]types.Color, gridsize)
+		grid[i] = make([]types.Pixel, gridsize)
 	}
-
 	for x := 0; x < gridsize; x++ {
 		for y := 0; y < gridsize; y++ {
 			keyString := fmt.Sprintf("%d,%d", x, y)
@@ -161,7 +159,7 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 				colorBytes := app.state.Db.Get(prefixKey(key))
 				colorString := string(colorBytes[:])
 				color, _ := strconv.Atoi(colorString)
-				grid[x][y] = types.DataTypesName[color]
+				grid[x][y] = types.Pixel{Color: types.DataTypesName[color], Owner: "abc"}
 			}
 		}
 	}
