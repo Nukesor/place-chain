@@ -41,6 +41,19 @@ func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
+func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var rr types.RegisterRequest
+	err := decoder.Decode(&rr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Printf("Bad request: %s", err)
+		return
+	}
+	defer r.Body.Close()
+	fmt.Fprintf(w, "Account created: %v", rr.ToAccount())
+}
+
 func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/index.html")
@@ -55,6 +68,9 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels", self.getPixels)
 	http.HandleFunc("/pixels/", self.getPixels)
+
+	http.HandleFunc("/register", self.register)
+	http.HandleFunc("/register/", self.register)
 	port := "8080"
 	fmt.Printf("Listening on http://localhost:%s\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
