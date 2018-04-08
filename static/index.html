@@ -17,16 +17,17 @@
 			<tbody>
 			<tr>
 			<td style="width: 130px;">
-				<img src="blank_profile_100.png" style="width:100px;height:100px;">
+				<img src="blank_profile_100.png" style="width:100px;height:100px;" id="p_image">
 			</td>
 			<td>
 				<div class="row">
-					<input type="text" id="name_input" value="Your Name"></input>
-					<input type="text" id="bio_input" value="bio"></input>
+					<input type="text" id="name_input" placeholder="Name (Mandatory)"></input>
+					<input type="text" id="bio_input" placeholder="Bio (Optional)"></input>
+					<input type="text" id="image_input" placeholder="Profile Image URL (optional)"></input>
 					<button type="button" id ="register_button">Register</button>
 				</div>
 				<div class="row">
-					<input type="text" id="privkey_input" value="private key">
+					<input type="text" id="privkey_input" placeholder="private key">
 					<button type="button" id ="login_button">Login</button>
 				</div>
 			</td>
@@ -55,7 +56,7 @@
 		
 		<div class="row">
 			<div class="center-block text-center" style="width:400px;height:50px;">
-				Click anywhere to fill the current Pixel with your current Color.
+				Click anywhere to fill the current Pixel with your current Color. Costs 0 Coins.
 			</div>
 			<div class="center-block text-center">
 				<canvas id="place_chain_canvas" width="400" height="400" style="background-color:white;"></canvas>
@@ -106,7 +107,6 @@
 			</p>
 		</div>
 	</div>
-	<script src="bundle.js"></script>
 	<script src="script.js"></script>
 </body>
 </html>
