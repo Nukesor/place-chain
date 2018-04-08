@@ -8,7 +8,7 @@ import (
 )
 
 type WebServer struct {
-	App *KVStoreApplication
+	PlacechainApp *PlacechainApp
 }
 
 func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Invalid Transaction")
 		return
 	}
-	_, err = self.App.PublishTx(pr.ToTransaction())
+	_, err = self.PlacechainApp.PublishTx(pr.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
@@ -35,7 +35,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 }
 
 func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
-	data := self.App.GetGrid()
+	data := self.PlacechainApp.GetGrid()
 	b, err := json.Marshal(data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -65,7 +65,7 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
-	_, err = self.App.PublishTx(account.ToTransaction())
+	_, err = self.PlacechainApp.PublishTx(account.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return

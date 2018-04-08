@@ -53,9 +53,9 @@ func prefixKey(key []byte) []byte {
 
 //---------------------------------------------------
 
-var _ abci.Application = (*KVStoreApplication)(nil)
+var _ abci.Application = (*PlacechainApp)(nil)
 
-type KVStoreApplication struct {
+type PlacechainApp struct {
 	abci.BaseApplication
 
 	state      types.AppState
@@ -63,13 +63,13 @@ type KVStoreApplication struct {
 	httpclient httpcli.HTTP
 }
 
-func NewKVStoreApplication() *KVStoreApplication {
+func NewPlacechainApp() *PlacechainApp {
 	state := loadState(dbm.NewMemDB())
 	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
-	return &KVStoreApplication{state: state, client: nil, httpclient: *httpClient}
+	return &PlacechainApp{state: state, client: nil, httpclient: *httpClient}
 }
 
-func (app *KVStoreApplication) StartClient() error {
+func (app *PlacechainApp) StartClient() error {
 	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) PublishTx(tx types.Transaction) (*ctypes.ResultBroadcastTx, error) {
+func (app *PlacechainApp) PublishTx(tx types.Transaction) (*ctypes.ResultBroadcastTx, error) {
 	bytes, err := json.Marshal(tx)
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ func (app *KVStoreApplication) PublishTx(tx types.Transaction) (*ctypes.ResultBr
 	return app.httpclient.BroadcastTxSync(bytes)
 }
 
-func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
+func (app *PlacechainApp) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
 	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
 }
 
-func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
+func (app *PlacechainApp) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var key []byte
 	var value []byte
@@ -126,7 +126,7 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
 
-func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
+func (app *PlacechainApp) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
 	if !validateTransactionBytes(tx) {
 		fmt.Println("Received malformed transaction payload")
@@ -135,7 +135,7 @@ func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
 }
 
-func (app *KVStoreApplication) Commit() abci.ResponseCommit {
+func (app *PlacechainApp) Commit() abci.ResponseCommit {
 	fmt.Println("========================== COMMIT")
 	// Using a memdb - just return the big endian size of the db
 	appHash := make([]byte, 8)
@@ -146,7 +146,7 @@ func (app *KVStoreApplication) Commit() abci.ResponseCommit {
 	return abci.ResponseCommit{Data: appHash}
 }
 
-func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
+func (app *PlacechainApp) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
 	fmt.Println("========================== QUERY")
 	value := app.state.Db.Get(prefixKey(reqQuery.Data))
 	if reqQuery.Prove {
@@ -162,7 +162,7 @@ func (app *KVStoreApplication) Query(reqQuery abci.RequestQuery) (resQuery abci.
 	return
 }
 
-func (app *KVStoreApplication) GetGrid() *types.Grid {
+func (app *PlacechainApp) GetGrid() *types.Grid {
 	grid := make(types.Grid, gridsize)
 	for i := range grid {
 		grid[i] = make([]types.Pixel, gridsize)
