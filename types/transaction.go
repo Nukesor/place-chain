@@ -16,6 +16,7 @@ const (
 
 type Transaction interface {
 	IsValid() bool
+	SignedBytes() ([]byte, error)
 }
 
 type Tx struct {
@@ -30,19 +31,6 @@ type PixelTransaction struct {
 	Nonce     string
 	PubKey    crypto.PubKey
 	Signature crypto.Signature
-}
-
-func (tx *PixelTransaction) SignedBytes() (result []byte, err error) {
-	data := struct {
-		X     int
-		Y     int
-		Color Color
-		Nonce string
-	}{
-		tx.X, tx.Y, tx.Color, tx.Nonce,
-	}
-
-	return json.Marshal(data)
 }
 
 func (tx *PixelTransaction) String() string {
@@ -86,4 +74,21 @@ func (pt PixelTransaction) IsValid() bool {
 
 func (rt RegisterTransaction) IsValid() bool {
 	return true
+}
+
+func (tx *PixelTransaction) SignedBytes() ([]byte, error) {
+	data := struct {
+		X     int
+		Y     int
+		Color Color
+		Nonce string
+	}{
+		tx.X, tx.Y, tx.Color, tx.Nonce,
+	}
+
+	return json.Marshal(data)
+}
+
+func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
+	return json.Marshal(rt.Acc.Profile)
 }

@@ -103,11 +103,12 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 		var pt types.PixelTransaction
 		json.Unmarshal(tx, &pt)
 		key = []byte(fmt.Sprintf("%d,%d", pt.X, pt.Y))
-		value = []byte(strconv.Itoa(int(pt.Color)))
+		value, _ = pt.SignedBytes()
 	} else if message.Type == types.REGISTER_TRANSACTION {
 		var rt types.RegisterTransaction
 		json.Unmarshal(tx, &rt)
 		key, _ = rt.Acc.PubKey.MarshalJSON()
+		value, _ = rt.SignedBytes()
 	}
 
 	app.state.Db.Set(prefixKey(key), value)
