@@ -17,7 +17,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&pr)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Printf("Bad request: %s", err)
+		fmt.Printf("Bad request: %s\n", err)
 		return
 	}
 	defer r.Body.Close()
@@ -44,14 +44,22 @@ func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var rr types.RegisterRequest
-	err := decoder.Decode(&rr)
-	if err != nil {
+
+	if err := decoder.Decode(&rr); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Printf("Bad request: %s", err)
+		fmt.Printf("Bad request: %s\n", err)
+		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
 	defer r.Body.Close()
-	fmt.Fprintf(w, "Account created: %v", rr.ToAccount())
+	account, err := rr.ToAccount()
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		fmt.Printf("Error creating account: %s\n", err)
+		fmt.Fprintf(w, "Error: %v", err)
+		return
+	}
+	fmt.Fprintf(w, "Account created: %v", account)
 }
 
 func (self *WebServer) LaunchHTTP() {
