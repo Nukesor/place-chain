@@ -119,10 +119,10 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 
 func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
-
-	if err := validatePayload(tx); err != nil {
-		fmt.Println("========================== INVALID TX")
-		fmt.Println(err)
+	var message types.Transaction
+	err := json.Unmarshal(tx, &message)
+	if err != nil || !message.IsValid() {
+		fmt.Println("Received malformed payload", err)
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
@@ -176,20 +176,4 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 		}
 	}
 	return &grid
-}
-
-func validatePayload(tx []byte) error {
-	var message types.Transaction
-	if err := json.Unmarshal(tx, &message); err != nil {
-		return err
-	}
-
-	//if message.X > gridsize || message.X < 0 {
-	//return errors.New("X coordinate is not in range.")
-	//}
-	//if message.Y > gridsize || message.Y < 0 {
-	//return errors.New("Y coordinate is not in range.")
-	//}
-
-	return nil
 }
