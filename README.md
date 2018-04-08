@@ -1,14 +1,14 @@
 # PLACE CHAAAAAIN
 
-### Setup:
-    
-    ./setup.sh
+## Setup:
+- Run `./setup.sh`
+- Run `./run-core.sh`
+- Run `./run-node.sh`
 
-### How to run ?????
-- Run tendermint using `tendermint node`
-- Run our application: `go run cmd/placechainnode/main.go start`
+### Distributed setup
 
-### Steps:
+
+## Description:
 
 Inspired by r/place (last years reddit april prank).
 
@@ -31,14 +31,11 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 - Benjamin Warnke
 
 
-### Kern-Funktionalität
-- Pixel-Farbe wählen aus z.B. 8 vordefinierten Farben (kostet coins)
-- jeder Benutzer 1 node (keine Account-Verwaltung)
-- neue nodes starten mit x coins
-- setzen von Pixeln (kostet coins)
-- coins verdienen wenn Pixel sichtbar sind
+### Core-Features
+- set colors of pixels
 
-### mögliche-Features
+### Possible Features
+- earn coins when you colored them
 - Fläche zusammenhängender gleichfarbiger Pixel umfärben (kostet coins aber Mengenrabatt)
 - Hintergrundfarbe ändern (kostet extrem viele coins)
 - Farbe wechseln kostet extra coins
