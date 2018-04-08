@@ -55,7 +55,7 @@ function refreshColorChooser(canvas) {
 $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
-	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
+	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y + ", owner=" + lastdata[pos.x][pos.y].Owner);
 });
 
 $("#place_chain_canvas").click(function(evt) {
@@ -63,11 +63,11 @@ $("#place_chain_canvas").click(function(evt) {
 	setPixel(canvas, pos, colors[colorindex]);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$.ajax("pixel", {
-        data : JSON.stringify(pixel),
-        contentType : 'application/json',
-        type : 'POST',
-    }).done(function(msg) {$("#statusconsole").html("msg = done");})
-      .fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
+		data : JSON.stringify(pixel),
+		contentType : 'application/json',
+		type : 'POST',})
+	.done(function(msg) {$("#statusconsole").html("msg = done");})
+	.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
 });
 
 $("#place_chain_color_chooser").click(function(evt) {
@@ -98,8 +98,8 @@ $(function() {
 			size = width;
 			for(i = 0; i < size; i++) {
 				for(j = 0; j < size; j++) {
-					if(data[i][j] != 0) {
-						setPixel(canvas,{x: i, y: j}, colors[data[i][j]]);
+					if(data[i][j].Color != 0) {
+						setPixel(canvas,{x: i, y: j}, colors[data[i][j].Color]);
 						countPixels = countPixels +1;
 					}
 				}
