@@ -21,18 +21,12 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-<<<<<<< HEAD
-	isValid := pr.IsValid()
-	if !isValid {
+	if !pr.IsValid() {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Printf("Invalid Transaction")
 		return
 	}
-	_, err = self.App.SetPixel(pr.ToTransaction())
-
-=======
 	_, err = self.App.PublishTx(pr.ToTransaction())
->>>>>>> 19c87c8bd869606fa3a77cd217b73ae5aeb37b77
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
