@@ -5,7 +5,10 @@ var colorindex = 1;
 var size = 10;
 var lastdata;
 var countPixels = 0;
-var privkey;
+var myprivkey;
+var myname;
+var mybio;
+var myimg;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -63,9 +66,10 @@ $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
-	$("#p_name_owner").html(lastdata[pos.x][pos.y].Owner);
-	$("#p_bio_owner").html(lastdata[pos.x][pos.y].Bio);
-	$("#p_image_owner").html(lastdata[pos.x][pos.y].Image);
+	$("#p_name_owner").text(lastdata[pos.x][pos.y].Owner);
+	$("#p_bio_owner").text(""+lastdata[pos.x][pos.y].Bio);
+	$("#p_image_owner").attr("src", lastdata[pos.x][pos.y].Image);
+	$("#p_image_owner").attr("src", "https://upload.wikimedia.org/wikipedia/commons/4/4d/CowsGoMoOo_%28Alexander_Huard%29.png");
 });
 
 $("#place_chain_canvas").click(function(evt) {
@@ -91,11 +95,17 @@ $("#place_chain_color_chooser").click(function(evt) {
 });
 
 $("#register_button").click(function(evt) {
-console.log("bla");
-	name = $("#name_input").value;
-	bio = $("#bio_input").value;
-	privkey = tendermintcrypto.genPrivKeyEd25519().bytes;
-	$("#p_privkey").text(toHexString(privkey));
+	myname = $("#name_input").val();
+	mybio = $("#bio_input").val();
+	myimg = $("#img_input").val();
+	if(myimg == ""){
+		myimg = "blank_profile_100.png"
+	}
+	myprivkey = tendermintcrypto.genPrivKeyEd25519();
+	$("#p_name").text(myname);
+	$("#p_bio").text(mybio);
+	$("#p_privkey").text(toHexString(myprivkey));
+	$("#p_image").attr("src", myimg);
 	$("#loginregister_div").hide();
 	$("#profile_div").show();
 });
