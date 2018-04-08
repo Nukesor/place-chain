@@ -22,7 +22,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	if !pr.IsValid() {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Printf("Invalid Transaction")
 		return
 	}

@@ -19,8 +19,8 @@ func (rr *RegisterRequest) String() string {
 }
 
 func (rr *RegisterRequest) ToAccount() (*Account, error) {
-	if rr.PubKey.Empty() {
-		return nil, errors.New("Account creation failed")
+	if rr.Profile.Name == "" || rr.PubKey.Empty() {
+		return nil, errors.New("Account creation must specify `profile.name` and `pubkey`")
 	}
 	return &Account{
 		rr.Profile,
