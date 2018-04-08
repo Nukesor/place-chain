@@ -102,6 +102,7 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 
 	app.state.Db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
 	app.state.Size += 1
+	defer fmt.Println("========================== SCCESFULLY DELIVERED TX")
 
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
