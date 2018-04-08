@@ -34,11 +34,11 @@ function setPixel(canvas, pos, color) {
 
 function refreshColorChooser(canvas) {
 	var context = canvas.getContext('2d');
-	for (j = 0; j < 2; j++) {
-		for (i = 0; i < 4; i++) {
-			color = colors[i + j * 4 + 1];
+	for (i = 0; i < 2; i++) {
+		for (j = 0; j < 4; j++) {
+			color = colors[i * 4 + j + 1];
 			if(colorindex != 0) {
-				if(i + j * 4 + 1 == colorindex) {
+				if(i * 4 + j + 1 == colorindex) {
 					context.fillStyle = "grey"
 					context.fillRect(i * 100, j * 100, 100, 100);
 					context.fillStyle = "rgb(" + color.r + "," + color.g + "," + color.b + ")";
@@ -73,10 +73,10 @@ $("#place_chain_canvas").click(function(evt) {
 $("#place_chain_color_chooser").click(function(evt) {
 	var rect = canvascolor.getBoundingClientRect();
 	var mousePos = {
-		x: ((evt.clientX - rect.left) / rect.width * 4) | 0,
-		y: ((evt.clientY - rect.top) / rect.height * 2) | 0
+		x: ((evt.clientX - rect.left) / rect.width * 2) | 0,
+		y: ((evt.clientY - rect.top) / rect.height * 4) | 0
 	};
-	colorindex = mousePos.x + mousePos.y * 4 + 1;
+	colorindex = mousePos.x * 4 + mousePos.y + 1;
 	refreshColorChooser(canvascolor);
 });
 
