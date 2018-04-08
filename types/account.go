@@ -23,3 +23,12 @@ func (profile *Profile) String() string {
 	return fmt.Sprintf("Profile{%s %s %s}",
 		profile.Name, profile.AvatarUrl, profile.Bio)
 }
+
+func (acc *Account) ToTransaction() *RegisterTransaction {
+
+	return &RegisterTransaction{
+		Tx{Type: 2},
+		acc,
+		acc.PubKey,
+	}
+}

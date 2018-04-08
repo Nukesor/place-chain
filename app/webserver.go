@@ -21,6 +21,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+<<<<<<< HEAD
 	isValid := pr.IsValid()
 	if !isValid {
 		w.WriteHeader(http.StatusBadRequest)
@@ -29,6 +30,9 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = self.App.SetPixel(pr.ToTransaction())
 
+=======
+	_, err = self.App.PublishTx(pr.ToTransaction())
+>>>>>>> 19c87c8bd869606fa3a77cd217b73ae5aeb37b77
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
@@ -67,7 +71,12 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "Account created: %v", account)
+	_, err = self.App.PublishTx(account.ToTransaction())
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (self *WebServer) LaunchHTTP() {

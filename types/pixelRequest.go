@@ -23,6 +23,7 @@ func (pr *PixelRequest) String() string {
 		pr.X, pr.Y, pr.Color)
 }
 
+<<<<<<< HEAD
 func (pr *PixelRequest) IsValid() bool {
 	transaction := pr.ToTransaction()
 	bytes, err := transaction.SignedBytes()
@@ -35,6 +36,14 @@ func (pr *PixelRequest) IsValid() bool {
 
 func (pr *PixelRequest) ToTransaction() *Transaction {
 	return &Transaction{
+=======
+func (pr *PixelRequest) ToTransaction() *PixelTransaction {
+	uuid4 := uuid.Must(uuid.NewV4())
+	uuid4String := fmt.Sprintf("%s", uuid4)
+
+	return &PixelTransaction{
+		Tx{Type: 1},
+>>>>>>> 19c87c8bd869606fa3a77cd217b73ae5aeb37b77
 		pr.X,
 		pr.Y,
 		pr.Color,
