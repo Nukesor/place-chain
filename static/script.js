@@ -108,6 +108,12 @@ $("#register_button").click(function(evt) {
 	if(myimg == ""){
 		myimg = "blank_profile_100.png"
 	}
+	if(myname == ""){
+		myname = Math.random().toString(36).substring(7)
+	}
+	if(mybio == ""){
+		mybio = Math.random().toString(36).substring(7)
+	}
 	myprivkey = tendermintcrypto.genPrivKeyEd25519();
 	var data = {
 		PubKey: { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)},
