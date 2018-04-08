@@ -12,15 +12,19 @@
 		<h1>place - chain</h1>
 	</div>
 	<div class="container-fluid">
-		<div class="row">
+		<div class="container-fluid" id="loginregister_div">
 			<img src="blank_profile_100.png" style="width:100px;height:100px;"></img>
-			<input type="text" id="name" value="Your Name"></input>
-			<input type="text" id="bio" value="bio"></input>
-			<p id="pubkey">pubkey</p>
-			<p id="privkey">privkey</p>
-			<button type="button">Register</button>
-			<button type="button">Login</button>
+			<div class="row">
+				<input type="text" id="name_input" value="Your Name"></input>
+				<input type="text" id="bio_input" value="bio"></input>
+				<button type="button" id ="register_button">Register</button>
+			</div>
+			<div class="row">
+				<input type="text" id="privkey_input" value="private key">
+				<button type="button" id ="login_button">Login</button>
+			</div>		
 		</div>
+
 		<div class="row">
 			<div class="center-block text-center" style="width:400px;height:50px;">
 				Click anywhere to fill the current Pixel with your current Color. Costs 0 Coins.
