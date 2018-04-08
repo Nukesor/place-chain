@@ -80,6 +80,9 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/script.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/script.js")
 	})
+	http.HandleFunc("/blank_profile_100.png", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/blank_profile_100.png")
+	})
 	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/style.less")
 	})

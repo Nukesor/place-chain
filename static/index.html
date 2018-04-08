@@ -9,46 +9,83 @@
 </head>
 <body  style="background-color:#DDD3D3;">
 	<div class="jumbotron text-center">
-		place - chain
+		<h1>Place-Chain</h1>
 	</div>
 	<div class="container-fluid">
+		<div class="container-fluid" id="loginregister_div">
+			<table>
+			<tbody>
+			<tr>
+			<td style="width: 130px;">
+				<img src="blank_profile_100.png" style="width:100px;height:100px;">
+			</td>
+			<td>
+				<div class="row">
+					<input type="text" id="name_input" value="Your Name"></input>
+					<input type="text" id="bio_input" value="bio"></input>
+					<button type="button" id ="register_button">Register</button>
+				</div>
+				<div class="row">
+					<input type="text" id="privkey_input" value="private key">
+					<button type="button" id ="login_button">Login</button>
+				</div>
+			</td>
+			</tr>
+			</tbody>
+			</table>								
+		</div>
+		<div class="container-fluid" id="profile_div">
+			<table>
+			<tbody>
+			<tr>
+			<td style="width: 130px;">
+				<img src="blank_profile_100.png" style="width:100px;height:100px;">
+			</td>
+			<td>
+				<div class="row">
+					<h1 id="p_name" >Name</h1>
+					<div id="p_bio">Bio</div>
+					<div id="p_privkey">Private Key</div>
+				</div>
+			</td>
+			</tr>
+			</tbody>
+			</table>		
+		</div>
+		
 		<div class="row">
-			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="center-block text-center" style="width:400px;height:50px;">
-					Click anywhere to fill the current Pixel with your current Color. Costs 0 Coins.
-				</div>
-				<canvas class="center-block" id="place_chain_canvas" width="400" height="400" style="background-color:white;"></canvas>
+			<div class="center-block text-center" style="width:400px;height:50px;">
+				Click anywhere to fill the current Pixel with your current Color. Costs 0 Coins.
 			</div>
-			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="center-block text-center" style="width:400px;height:15px;">
-					Coordinates
-				</div>
-				<p id="coordinates" class="center-block text-center" style="width:400px;height=15px">
-				    x=  , y=  
-				</p>
+			<div class="center-block text-center">
+				<canvas id="place_chain_canvas" width="400" height="400" style="background-color:white;"></canvas>
+				<canvas id="place_chain_color_chooser" width="200" height="400"></canvas>
 			</div>
-			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="center-block text-center" style="width:400px;height:50px;">
-					Click to change your Color for 0 Coins.
-				</div>
-				<canvas class="center-block" id="place_chain_color_chooser" width="400" height="200"></canvas>
-				<div class="center-block text-center" style="width:400px;height:50px;">
-					Your coins: <span id="place_chain_coins">0</span>
-				</div>
+		</div>
+		<div class="row">
+			<div class="center-block text-center" style="width:400px;height:15px;">
+				Coordinates
 			</div>
-			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<div class="center-block text-center" style="width:400px;height:15px;">
-					Status-console
-				</div>
-				<p id="statusconsole" class="center-block text-center" style="width:400px;height:15px">
-				</p>
+			<p id="coordinates" class="center-block text-center" style="width:400px;height=15px">
+			    x=  , y=  
+			</p>
+		</div>
+		<div class="row">
+			<div class="center-block text-center" style="width:400px;height:50px;">
+				Your coins: <span id="place_chain_coins">0</span>
 			</div>
-			<div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-				<p id="pixelnumberdisplay" class="center-block text-center" style="width:400px;height:15px">
-					Number of Pixels: [updating]
-				</p>
+		</div>
+		<div class="row">
+			<div class="center-block text-center" style="width:400px;height:15px;">
+				Status-console
 			</div>
-			
+			<p id="statusconsole" class="center-block text-center" style="width:400px;height:15px">
+			</p>
+		</div>
+		<div class="row">
+			<p id="pixelnumberdisplay" class="center-block text-center" style="width:400px;height:15px">
+				Number of Pixels: [updating]
+			</p>
 		</div>
 	</div>
 	<script src="script.js"></script>
