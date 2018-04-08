@@ -92,14 +92,15 @@ func (tx *PixelTransaction) SignedBytes() ([]byte, error) {
 
 func (tx *PixelTransaction) MarshalJSON() ([]byte, error) {
 	data := struct {
-		Type TxType
+		Type   TxType
 		X      int
 		Y      int
 		Color  Color
 		Nonce  string
 		PubKey crypto.PubKey
+		Signature crypto.Signature
 	}{
-		tx.GetTxType(), tx.X, tx.Y, tx.Color, tx.Nonce, tx.PubKey,
+		tx.GetTxType(), tx.X, tx.Y, tx.Color, tx.Nonce, tx.PubKey, tx.Signature,
 	}
 	return json.Marshal(data)
 }
@@ -110,7 +111,7 @@ func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
 
 func (tx *RegisterTransaction) MarshalJSON() ([]byte, error) {
 	data := struct {
-		Type TxType
+		Type   TxType
 		Acc    Account
 		PubKey crypto.PubKey
 	}{

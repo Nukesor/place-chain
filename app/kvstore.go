@@ -196,6 +196,7 @@ func validateTransactionBytes(txBytes []byte) bool {
 	var tx types.Tx
 	json.Unmarshal(txBytes, &tx)
 	isValid := false
+	fmt.Println("validate", string(txBytes))
 	if tx.Type == types.PIXEL_TRANSACTION {
 		var pt types.PixelTransaction
 		json.Unmarshal(txBytes, &pt)
