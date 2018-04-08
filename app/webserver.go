@@ -86,6 +86,9 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/style.less")
 	})
+	http.HandleFunc("/bundle.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/bundle.js")
+	})
 	http.HandleFunc("/pixel", self.setPixel)
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels", self.getPixels)

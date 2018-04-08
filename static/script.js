@@ -5,6 +5,10 @@ var colorindex = 1;
 var size = 10;
 var lastdata;
 var countPixels = 0;
+var myprivkey;
+var myname;
+var mybio;
+var myimg;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -23,6 +27,12 @@ function getMousePos(canvas, evt) {
 		x: ((evt.clientX - rect.left) / rect.width * size) | 0,
 		y: ((evt.clientY - rect.top) / rect.height * size) | 0
 	};
+}
+
+function toHexString(byteArray) {
+  return Array.from(byteArray, function(byte) {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join('')
 }
 
 function setPixel(canvas, pos, color) {
@@ -55,13 +65,21 @@ function refreshColorChooser(canvas) {
 $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
-	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y + ", owner=" + lastdata[pos.x][pos.y].Owner);
+	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
+	$("#p_name_owner").text(lastdata[pos.x][pos.y].Profile.Name);
+	$("#p_bio_owner").text(""+lastdata[pos.x][pos.y].Profile.Bio);
+	$("#p_image_owner").attr("src", lastdata[pos.x][pos.y].Profile.AvatarUrl);
+	$("#p_image_owner").attr("src", "https://upload.wikimedia.org/wikipedia/commons/4/4d/CowsGoMoOo_%28Alexander_Huard%29.png");
 });
 
 $("#place_chain_canvas").click(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	setPixel(canvas, pos, colors[colorindex]);
-	var pixel = {x: pos.x, y: pos.y, color: colorindex};
+	var pixel = {X: pos.x, Y: pos.y, Color: colorindex, Nonce: Math.random().toString(36).substring(7)};
+	var pixelstring = JSON.stringify(pixel);
+	var signature = myprivkey.signString(pixelstring);
+	pixel.PubKey = { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)}
+	pixel.Signature = { type: "ed25519", data: toHexString(signature.bytes)}
 	$.ajax("pixel", {
 		data : JSON.stringify(pixel),
 		contentType : 'application/json',
@@ -80,7 +98,53 @@ $("#place_chain_color_chooser").click(function(evt) {
 	refreshColorChooser(canvascolor);
 });
 
+$("#register_button").click(function(evt) {
+	myname = $("#name_input").val();
+	mybio = $("#bio_input").val();
+	myimg = $("#img_input").val();
+	if(myimg == ""){
+		myimg = "blank_profile_100.png"
+	}
+	myprivkey = tendermintcrypto.genPrivKeyEd25519();
+	var data = {
+		PubKey: { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)},
+		Profile: {Name: myname, Bio: mybio, AvatarUrl: myimg}
+	};
+	$.ajax("register", {
+		data : JSON.stringify(data),
+		contentType : 'application/json',
+		type : 'POST'})
+	.done(function(msg) {
+		$("#p_name").text(myname);
+		$("#p_bio").text(mybio);
+		$("#p_privkey").text(toHexString(myprivkey.bytes));
+		$("#p_image").attr("src", myimg);
+		$("#loginregister_div").hide();
+		$("#profile_div").show();
+	})
+	.fail(function(xhr, status, error) {
+		$("#statusconsole").html("msg = " + status + ", error = " + error);
+	});
+});
+
+$("#login_button").click(function(evt) {
+	myname = $("#name_input").val();
+	mybio = $("#bio_input").val();
+	myimg = $("#img_input").val();
+	if(myimg == ""){
+		myimg = "blank_profile_100.png"
+	}
+	myprivkey = tendermintcrypto.genPrivKeyEd25519();
+	$("#p_name").text(myname);
+	$("#p_bio").text(mybio);
+	$("#p_privkey").text(toHexString(myprivkey.bytes));
+	$("#p_image").attr("src", myimg);
+	$("#loginregister_div").hide();
+	$("#profile_div").show();
+});
+
 $(function() {
+	$("#profile_div").hide();
 	refreshColorChooser(canvascolor);
 	setInterval(function() {
 		$.get("pixels", function(data) {

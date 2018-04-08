@@ -11,22 +11,23 @@
 	<div class="jumbotron text-center">
 		<h1>Place-Chain</h1>
 	</div>
-	<div class="container-fluid">
-		<div class="container-fluid" id="loginregister_div">
+	<div>
+		<div id="loginregister_div" style="padding-left:20px;" >
 			<table>
 			<tbody>
 			<tr>
 			<td style="width: 130px;">
-				<img src="blank_profile_100.png" style="width:100px;height:100px;">
+				<img src="blank_profile_100.png" style="width:100px;height:100px;" id="p_image">
 			</td>
 			<td>
 				<div class="row">
-					<input type="text" id="name_input" value="Your Name"></input>
-					<input type="text" id="bio_input" value="bio"></input>
+					<input type="text" id="name_input" placeholder="Name (Mandatory)"></input>
+					<input type="text" id="bio_input" placeholder="Bio (Optional)"></input>
+					<input type="text" id="image_input" placeholder="Profile Image URL (optional)"></input>
 					<button type="button" id ="register_button">Register</button>
 				</div>
 				<div class="row">
-					<input type="text" id="privkey_input" value="private key">
+					<input type="text" id="privkey_input" placeholder="private key">
 					<button type="button" id ="login_button">Login</button>
 				</div>
 			</td>
@@ -34,7 +35,7 @@
 			</tbody>
 			</table>								
 		</div>
-		<div class="container-fluid" id="profile_div">
+		<div id="profile_div" style="padding-left: 20px;">
 			<table>
 			<tbody>
 			<tr>
@@ -43,7 +44,7 @@
 			</td>
 			<td>
 				<div class="row">
-					<h1 id="p_name" >Name</h1>
+					<h3 id="p_name" >Name</h3>
 					<div id="p_bio">Bio</div>
 					<div id="p_privkey">Private Key</div>
 				</div>
@@ -61,6 +62,24 @@
 				<canvas id="place_chain_canvas" width="400" height="400" style="background-color:white;"></canvas>
 				<canvas id="place_chain_color_chooser" width="200" height="400"></canvas>
 			</div>
+		</div>
+		<div id="owner_profile_div" style="width: 700px; padding-left: 20px;">
+			<h1>Owner</h1>			
+			<table >
+			<tbody>
+			<tr>
+			<td style="width: 130px;">
+				<img src="blank_profile_100.png" style="width:100px;height:100px;" id="p_image_owner">
+			</td>
+			<td>
+				<div class="row">
+					<h3 id="p_name_owner" >Name</h3>
+					<div id="p_bio_owner">Bio</div>
+				</div>
+			</td>
+			</tr>
+			</tbody>
+			</table>						
 		</div>
 		<div class="row">
 			<div class="center-block text-center" style="width:400px;height:15px;">
@@ -88,8 +107,7 @@
 			</p>
 		</div>
 	</div>
+	<script src="bundle.js"></script>
 	<script src="script.js"></script>
-</body>
-</html>
 </body>
 </html>
