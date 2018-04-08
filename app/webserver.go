@@ -21,7 +21,14 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
+	isValid := pr.IsValid()
+	if !isValid {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Printf("Invalid Transaction")
+		return
+	}
 	_, err = self.App.SetPixel(pr.ToTransaction())
+
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
@@ -51,6 +58,7 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
+	// TODO shouldn't this be done after the account is successfully created?
 	defer r.Body.Close()
 	account, err := rr.ToAccount()
 	if err != nil {

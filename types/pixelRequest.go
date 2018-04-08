@@ -3,13 +3,16 @@ package types
 import (
 	"fmt"
 
-	"github.com/satori/go.uuid"
+	"github.com/tendermint/go-crypto"
 )
 
 type PixelRequest struct {
-	X     int
-	Y     int
-	Color Color
+	X         int
+	Y         int
+	Color     Color
+	Nonce     string
+	PubKey    crypto.PubKey
+	Signature crypto.Signature
 }
 
 func (pr *PixelRequest) String() string {
@@ -20,14 +23,23 @@ func (pr *PixelRequest) String() string {
 		pr.X, pr.Y, pr.Color)
 }
 
-func (pr *PixelRequest) ToTransaction() *Transaction {
-	uuid4 := uuid.Must(uuid.NewV4())
-	uuid4String := fmt.Sprintf("%s", uuid4)
+func (pr *PixelRequest) IsValid() bool {
+	transaction := pr.ToTransaction()
+	bytes, err := transaction.SignedBytes()
+	if err != nil {
+		fmt.Println("Could not serialize transaction bytes for verifying signature")
+		return false
+	}
+	return pr.PubKey.VerifyBytes(bytes, pr.Signature)
+}
 
+func (pr *PixelRequest) ToTransaction() *Transaction {
 	return &Transaction{
 		pr.X,
 		pr.Y,
 		pr.Color,
-		uuid4String,
+		pr.Nonce,
+		pr.PubKey,
+		pr.Signature,
 	}
 }
