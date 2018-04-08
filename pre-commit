@@ -1,1 +1,1 @@
-gofmt -s -w . && git add . && echo '==== ✅ gofmt successful 🍰 ===='
+gofmt -s -w . && echo '==== ✅ gofmt successful 🍰 ===='
