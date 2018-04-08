@@ -17,15 +17,19 @@ const (
 type Transaction interface {
 	IsValid() bool
 	SignedBytes() ([]byte, error)
-	MarshalJSON() ([]byte, error)
 }
 
-type Tx struct {
-	Type TxType // pixel tx or register tx
+// -------- TransactionWithType
+// only used for unmarshalling a Transaction of unknown type. TransactionWithType only has a type, which can then be used to identify the specific transaction type (Pixel, Register)
+
+type TransactionWithType struct {
+	Type TxType
 }
+
+// -------- PixelTransaction
 
 type PixelTransaction struct {
-	Tx
+	Type      TxType
 	X         int
 	Y         int
 	Color     Color
@@ -34,29 +38,8 @@ type PixelTransaction struct {
 	Signature crypto.Signature
 }
 
-func (tx *PixelTransaction) String() string {
-	if tx == nil {
-		return "nil Transaction"
-	}
-	res, err := json.Marshal(tx)
-	if err != nil {
-		return "Transaction that could not be json encoded"
-	}
-	return string(res)
-}
-
-type RegisterTransaction struct {
-	Tx
-	Acc    *Account
-	PubKey crypto.PubKey
-}
-
 func (pt PixelTransaction) GetTxType() TxType {
 	return PIXEL_TRANSACTION
-}
-
-func (rt RegisterTransaction) GetTxType() TxType {
-	return REGISTER_TRANSACTION
 }
 
 func (pt PixelTransaction) IsValid() bool {
@@ -64,58 +47,43 @@ func (pt PixelTransaction) IsValid() bool {
 		return false
 	}
 	bytes, err := pt.SignedBytes()
-	fmt.Printf("=== Validating\n %v\n", pt)
-	fmt.Printf("Bytes to validate: %s\n", string(bytes))
 	if err != nil {
-		fmt.Println("Could not serialize transaction bytes for verifying signature")
+		fmt.Println("PixelTransaction: Could not serialize transaction bytes for verifying signature")
 		return false
 	}
 	return pt.PubKey.VerifyBytes(bytes, pt.Signature)
 }
 
-func (rt RegisterTransaction) IsValid() bool {
-	return true
-}
-
-func (tx *PixelTransaction) SignedBytes() ([]byte, error) {
+func (pt PixelTransaction) SignedBytes() ([]byte, error) {
 	data := struct {
 		X     int
 		Y     int
 		Color Color
 		Nonce string
 	}{
-		tx.X, tx.Y, tx.Color, tx.Nonce,
+		pt.X, pt.Y, pt.Color, pt.Nonce,
 	}
 
 	return json.Marshal(data)
 }
 
-func (tx *PixelTransaction) MarshalJSON() ([]byte, error) {
-	data := struct {
-		Type      TxType
-		X         int
-		Y         int
-		Color     Color
-		Nonce     string
-		PubKey    crypto.PubKey
-		Signature crypto.Signature
-	}{
-		tx.GetTxType(), tx.X, tx.Y, tx.Color, tx.Nonce, tx.PubKey, tx.Signature,
-	}
-	return json.Marshal(data)
+// -------- RegisterTransaction
+
+type RegisterTransaction struct {
+	Type    TxType
+	Profile Profile
+	PubKey  crypto.PubKey
+}
+
+func (rt RegisterTransaction) GetTxType() TxType {
+	return REGISTER_TRANSACTION
+}
+
+func (rt RegisterTransaction) IsValid() bool {
+	// TODO: implement with signing
+	return true
 }
 
 func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
-	return json.Marshal(rt.Acc.Profile)
-}
-
-func (tx *RegisterTransaction) MarshalJSON() ([]byte, error) {
-	data := struct {
-		Type   TxType
-		Acc    Account
-		PubKey crypto.PubKey
-	}{
-		tx.GetTxType(), *tx.Acc, tx.PubKey,
-	}
-	return json.Marshal(data)
+	return json.Marshal(rt.Profile)
 }

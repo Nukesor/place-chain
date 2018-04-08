@@ -4,7 +4,7 @@ import (
 	"../types"
 	"encoding/binary"
 	"encoding/json"
-	//"errors"
+	"errors"
 	"fmt"
 	"os"
 
@@ -14,7 +14,7 @@ import (
 	dbm "github.com/tendermint/tmlibs/db"
 	"github.com/tendermint/tmlibs/log"
 
-	// Http client stuff
+	// Tendermint http client
 	httpcli "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
@@ -24,6 +24,7 @@ var (
 	kvPairPrefixKey = []byte("kvPairKey:")
 )
 
+// TODO: make configurable
 const gridsize int = 20
 
 func loadState(db dbm.DB) types.AppState {
@@ -60,13 +61,13 @@ type PlacechainApp struct {
 
 	state      types.AppState
 	client     abcicli.Client
-	httpclient httpcli.HTTP
+	httpClient httpcli.HTTP
 }
 
 func NewPlacechainApp() *PlacechainApp {
 	state := loadState(dbm.NewMemDB())
 	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
-	return &PlacechainApp{state: state, client: nil, httpclient: *httpClient}
+	return &PlacechainApp{state: state, client: nil, httpClient: *httpClient}
 }
 
 func (app *PlacechainApp) StartClient() error {
@@ -84,52 +85,57 @@ func (app *PlacechainApp) StartClient() error {
 	return nil
 }
 
+func (app *PlacechainApp) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
+	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
+}
+
 func (app *PlacechainApp) PublishTx(tx types.Transaction) (*ctypes.ResultBroadcastTx, error) {
 	bytes, err := json.Marshal(tx)
 	if err != nil {
 		return nil, err
 	}
-	return app.httpclient.BroadcastTxSync(bytes)
+	return app.httpClient.BroadcastTxSync(bytes)
 }
 
-func (app *PlacechainApp) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
-	return abci.ResponseInfo{Data: fmt.Sprintf("{\"size\":%v}", app.state.Size)}
-}
-
-func (app *PlacechainApp) DeliverTx(tx []byte) abci.ResponseDeliverTx {
+func (app *PlacechainApp) DeliverTx(txBytes []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
 	var key []byte
-	var value []byte
 
-	var message types.Tx
-	json.Unmarshal(tx, &message) // pass message to get TxType
+	var tx types.TransactionWithType
+	json.Unmarshal(txBytes, &tx) // pass tx to get TxType
+
 	var err error
-	if message.Type == types.PIXEL_TRANSACTION {
+	if tx.Type == types.PIXEL_TRANSACTION {
 		var pt types.PixelTransaction
-		json.Unmarshal(tx, &pt)
+		json.Unmarshal(txBytes, &pt)
 		key = []byte(fmt.Sprintf("%d,%d", pt.X, pt.Y))
-		value, err = pt.MarshalJSON()
-	} else if message.Type == types.REGISTER_TRANSACTION {
+	} else if tx.Type == types.REGISTER_TRANSACTION {
 		var rt types.RegisterTransaction
-		json.Unmarshal(tx, &rt)
-		key, _ = rt.Acc.PubKey.MarshalJSON()
-		value, err = rt.MarshalJSON()
+		json.Unmarshal(txBytes, &rt)
+		key, _ = rt.PubKey.MarshalJSON()
 	}
+
 	if err != nil {
 		return abci.ResponseDeliverTx{Code: code.CodeTypeEncodingError}
 	}
 
-	app.state.Db.Set(prefixKey(key), value)
+	app.state.Db.Set(prefixKey(key), txBytes)
 	app.state.Size += 1
 	fmt.Println("========================== SCCESFULLY DELIVERED TX")
 
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
 
-func (app *PlacechainApp) CheckTx(tx []byte) abci.ResponseCheckTx {
+func (app *PlacechainApp) CheckTx(txBytes []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
-	if !validateTransactionBytes(tx) {
-		fmt.Println("Received malformed transaction payload")
+	tx, err := toTransaction(txBytes)
+
+	if err != nil {
+		fmt.Println("CheckTx:", err)
+		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
+	}
+	if !tx.IsValid() {
+		fmt.Println("CheckTx: invalid transaction content", err)
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
@@ -146,54 +152,40 @@ func (app *PlacechainApp) Commit() abci.ResponseCommit {
 	return abci.ResponseCommit{Data: appHash}
 }
 
-func (app *PlacechainApp) Query(reqQuery abci.RequestQuery) (resQuery abci.ResponseQuery) {
-	fmt.Println("========================== QUERY")
-	value := app.state.Db.Get(prefixKey(reqQuery.Data))
-	if reqQuery.Prove {
-		resQuery.Index = -1 // TODO make Proof return index
-		resQuery.Key = reqQuery.Data
-	}
-	resQuery.Value = value
-	if value != nil {
-		resQuery.Log = "exists"
-	} else {
-		resQuery.Log = "does not exist"
-	}
-	return
-}
-
 func (app *PlacechainApp) GetGrid() *types.Grid {
 	grid := make(types.Grid, gridsize)
 	for i := range grid {
 		grid[i] = make([]types.Pixel, gridsize)
 	}
-	for x := 0; x < gridsize; x++ {
-		for y := 0; y < gridsize; y++ {
+	for x := range grid {
+		for y := range grid[x] {
 			keyString := fmt.Sprintf("%d,%d", x, y)
-			key := []byte(keyString)
+			key := prefixKey([]byte(keyString))
 
-			if app.state.Db.Has(prefixKey(key)) {
-				// Get color out of key value store and convert it to int
-				bytes := app.state.Db.Get(prefixKey(key))
-				var transaction types.PixelTransaction
-				json.Unmarshal(bytes, &transaction)
-				profileKey, err := transaction.PubKey.MarshalJSON()
-
-				if err != nil {
-					fmt.Printf("Error while decoding Public Key for %v", transaction)
-				}
-
-				var rt types.RegisterTransaction
-				_ = json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &rt)
-				grid[x][y] = types.Pixel{Color: transaction.Color, Profile: rt.Acc.Profile}
+			if !app.state.Db.Has(key) {
+				continue
 			}
+
+			// Get color out of key value store and convert it to int
+			bytes := app.state.Db.Get(key)
+			var pt types.PixelTransaction
+			json.Unmarshal(bytes, &pt)
+			pixelPublicKey, err := pt.PubKey.MarshalJSON()
+
+			if err != nil {
+				fmt.Printf("Error while decoding Public Key for PixelTransaction %v", pt)
+			}
+
+			var rt types.RegisterTransaction
+			json.Unmarshal(app.state.Db.Get(prefixKey(pixelPublicKey)), &rt)
+			grid[x][y] = types.Pixel{Color: pt.Color, Profile: rt.Profile}
 		}
 	}
 	return &grid
 }
 
 func validateTransactionBytes(txBytes []byte) bool {
-	var tx types.Tx
+	var tx types.TransactionWithType
 	json.Unmarshal(txBytes, &tx)
 	isValid := false
 	fmt.Println("validate", string(txBytes))
@@ -207,4 +199,19 @@ func validateTransactionBytes(txBytes []byte) bool {
 		isValid = rt.IsValid()
 	}
 	return isValid
+}
+
+func toTransaction(txBytes []byte) (types.Transaction, error) {
+	var tx types.TransactionWithType
+	json.Unmarshal(txBytes, &tx)
+	if tx.Type == types.PIXEL_TRANSACTION {
+		var pt types.PixelTransaction
+		json.Unmarshal(txBytes, &pt)
+		return pt, nil
+	} else if tx.Type == types.REGISTER_TRANSACTION {
+		var rt types.RegisterTransaction
+		json.Unmarshal(txBytes, &rt)
+		return rt, nil
+	}
+	return nil, errors.New("Cannot convert []byte to Transaction, unknown type")
 }

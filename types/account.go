@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"github.com/tendermint/go-crypto"
 )
 
@@ -16,19 +15,10 @@ type Profile struct {
 	AvatarUrl string
 }
 
-func (profile *Profile) String() string {
-	if profile == nil {
-		return "nil Profile"
-	}
-	return fmt.Sprintf("Profile{%s %s %s}",
-		profile.Name, profile.AvatarUrl, profile.Bio)
-}
-
 func (acc *Account) ToTransaction() *RegisterTransaction {
-
 	return &RegisterTransaction{
-		Tx{Type: 2},
-		acc,
+		REGISTER_TRANSACTION,
+		acc.Profile,
 		acc.PubKey,
 	}
 }

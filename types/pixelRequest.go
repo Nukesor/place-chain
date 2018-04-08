@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/tendermint/go-crypto"
 )
 
@@ -15,21 +13,13 @@ type PixelRequest struct {
 	Signature crypto.Signature
 }
 
-func (pr *PixelRequest) String() string {
-	if pr == nil {
-		return "nil Pixel Request"
-	}
-	return fmt.Sprintf("Pixel{%d %d %d}",
-		pr.X, pr.Y, pr.Color)
-}
-
-func (pr *PixelRequest) IsValid() bool {
+func (pr PixelRequest) IsValid() bool {
 	return pr.ToTransaction().IsValid()
 }
 
-func (pr *PixelRequest) ToTransaction() *PixelTransaction {
+func (pr PixelRequest) ToTransaction() *PixelTransaction {
 	return &PixelTransaction{
-		Tx{Type: 1},
+		PIXEL_TRANSACTION,
 		pr.X,
 		pr.Y,
 		pr.Color,
