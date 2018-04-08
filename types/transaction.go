@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/tendermint/go-crypto"
 )
 
@@ -13,7 +14,9 @@ const (
 	REGISTER_TRANSACTION
 )
 
-type Transaction interface{}
+type Transaction interface {
+	IsValid() bool
+}
 
 type Tx struct {
 	Type TxType // pixel tx or register tx
@@ -65,4 +68,20 @@ func (pt PixelTransaction) GetTxType() TxType {
 
 func (rt RegisterTransaction) GetTxType() TxType {
 	return REGISTER_TRANSACTION
+}
+
+func (pt PixelTransaction) IsValid() bool {
+	bytes, err := pt.SignedBytes()
+	fmt.Printf("=== Validating\n %v\n", pt)
+	fmt.Printf("Bytes to validate: %s\n", string(bytes))
+	if err != nil {
+		fmt.Println("Could not serialize transaction bytes for verifying signature")
+		return false
+	}
+
+	return pt.PubKey.VerifyBytes(bytes, pt.Signature)
+}
+
+func (rt RegisterTransaction) IsValid() bool {
+	return true
 }
