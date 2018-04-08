@@ -20,11 +20,12 @@ func (pr *PixelRequest) String() string {
 		pr.X, pr.Y, pr.Color)
 }
 
-func (pr *PixelRequest) ToTransaction() *Transaction {
+func (pr *PixelRequest) ToTransaction() *PixelTransaction {
 	uuid4 := uuid.Must(uuid.NewV4())
 	uuid4String := fmt.Sprintf("%s", uuid4)
 
-	return &Transaction{
+	return &PixelTransaction{
+		Tx{Type: 1},
 		pr.X,
 		pr.Y,
 		pr.Color,

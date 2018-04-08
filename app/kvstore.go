@@ -4,7 +4,7 @@ import (
 	"../types"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
+	//"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -79,7 +79,7 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) SetPixel(tx *types.Transaction) (res *abci.ResponseDeliverTx, err error) {
+func (app *KVStoreApplication) PublishTx(tx types.Transaction) (res *abci.ResponseDeliverTx, err error) {
 	bytes, err := json.Marshal(tx)
 	if err != nil {
 		return nil, err
@@ -94,14 +94,24 @@ func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.Response
 
 func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 	fmt.Println("========================== DELIVER TX")
-	var message types.Transaction
+	var key []byte
+	var value []byte
 
-	json.Unmarshal(tx, &message)
+	var message types.Tx
+	json.Unmarshal(tx, &message) // pass message to get TxType
 
-	keyString := fmt.Sprintf("%d,%d", message.X, message.Y)
-	key := []byte(keyString)
+	if message.Type == types.PIXEL_TRANSACTION {
+		var pt types.PixelTransaction
+		json.Unmarshal(tx, &pt)
+		key = []byte(fmt.Sprintf("%d,%d", pt.X, pt.Y))
+		value = []byte(strconv.Itoa(int(pt.Color)))
+	} else if message.Type == types.REGISTER_TRANSACTION {
+		var rt types.RegisterTransaction
+		json.Unmarshal(tx, &rt)
+		key, _ = rt.Acc.PubKey.MarshalJSON()
+	}
 
-	app.state.Db.Set(prefixKey(key), []byte(strconv.Itoa(int(message.Color))))
+	app.state.Db.Set(prefixKey(key), value)
 	app.state.Size += 1
 
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
@@ -174,12 +184,12 @@ func validatePayload(tx []byte) error {
 		return err
 	}
 
-	if message.X > gridsize || message.X < 0 {
-		return errors.New("X coordinate is not in range.")
-	}
-	if message.Y > gridsize || message.Y < 0 {
-		return errors.New("Y coordinate is not in range.")
-	}
+	//if message.X > gridsize || message.X < 0 {
+	//return errors.New("X coordinate is not in range.")
+	//}
+	//if message.Y > gridsize || message.Y < 0 {
+	//return errors.New("Y coordinate is not in range.")
+	//}
 
 	return nil
 }

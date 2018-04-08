@@ -21,7 +21,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	_, err = self.App.SetPixel(pr.ToTransaction())
+	_, err = self.App.PublishTx(pr.ToTransaction())
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
@@ -59,7 +59,12 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "Account created: %v", account)
+	_, err = self.App.PublishTx(account.ToTransaction())
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s", err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (self *WebServer) LaunchHTTP() {
