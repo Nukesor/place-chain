@@ -19,7 +19,7 @@ func (rr *RegisterRequest) String() string {
 }
 
 func (rr *RegisterRequest) ToAccount() (*Account, error) {
-	if rr.Profile == nil || rr.PubKey.Empty() {
+	if rr.PubKey.Empty() {
 		return nil, errors.New("Account creation failed")
 	}
 	return &Account{
