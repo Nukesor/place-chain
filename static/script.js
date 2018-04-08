@@ -9,6 +9,7 @@ var myprivkey;
 var myname;
 var mybio;
 var myimg;
+var loggedin = 0;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -73,19 +74,21 @@ $("#place_chain_canvas").mousemove(function(evt) {
 });
 
 $("#place_chain_canvas").click(function(evt) {
-	var pos = getMousePos(canvas, evt);
-	setPixel(canvas, pos, colors[colorindex]);
-	var pixel = {X: pos.x, Y: pos.y, Color: colorindex, Nonce: Math.random().toString(36).substring(7)};
-	var pixelstring = JSON.stringify(pixel);
-	var signature = myprivkey.signString(pixelstring);
-	pixel.PubKey = { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)}
-	pixel.Signature = { type: "ed25519", data: toHexString(signature.bytes)}
-	$.ajax("pixel", {
-		data : JSON.stringify(pixel),
-		contentType : 'application/json',
-		type : 'POST',})
-	.done(function(msg) {$("#statusconsole").html("msg = done");})
-	.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
+	if(loggedin>0){
+		var pos = getMousePos(canvas, evt);
+		setPixel(canvas, pos, colors[colorindex]);
+		var pixel = {X: pos.x, Y: pos.y, Color: colorindex, Nonce: Math.random().toString(36).substring(7)};
+		var pixelstring = JSON.stringify(pixel);
+		var signature = myprivkey.signString(pixelstring);
+		pixel.PubKey = { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)}
+		pixel.Signature = { type: "ed25519", data: toHexString(signature.bytes)}
+		$.ajax("pixel", {
+			data : JSON.stringify(pixel),
+			contentType : 'application/json',
+			type : 'POST',})
+		.done(function(msg) {$("#statusconsole").html("msg = done");})
+		.fail(function(xhr, status, error) {$("#statusconsole").html("msg = " + status + ", error = " + error);});
+	}
 });
 
 $("#place_chain_color_chooser").click(function(evt) {
@@ -121,6 +124,7 @@ $("#register_button").click(function(evt) {
 		$("#p_image").attr("src", myimg);
 		$("#loginregister_div").hide();
 		$("#profile_div").show();
+		loggedin = 1;
 	})
 	.fail(function(xhr, status, error) {
 		$("#statusconsole").html("msg = " + status + ", error = " + error);
@@ -141,6 +145,7 @@ $("#login_button").click(function(evt) {
 	$("#p_image").attr("src", myimg);
 	$("#loginregister_div").hide();
 	$("#profile_div").show();
+	loggedin = 1;
 });
 
 $(function() {

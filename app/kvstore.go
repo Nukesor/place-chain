@@ -14,6 +14,10 @@ import (
 	abci "github.com/tendermint/abci/types"
 	dbm "github.com/tendermint/tmlibs/db"
 	"github.com/tendermint/tmlibs/log"
+
+	// Http client stuff
+	httpcli "github.com/tendermint/tendermint/rpc/client"
+	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 var (
@@ -55,13 +59,15 @@ var _ abci.Application = (*KVStoreApplication)(nil)
 type KVStoreApplication struct {
 	abci.BaseApplication
 
-	state  types.AppState
-	client abcicli.Client
+	state      types.AppState
+	client     abcicli.Client
+	httpclient httpcli.HTTP
 }
 
 func NewKVStoreApplication() *KVStoreApplication {
 	state := loadState(dbm.NewMemDB())
-	return &KVStoreApplication{state: state, client: nil}
+	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
+	return &KVStoreApplication{state: state, client: nil, httpclient: *httpClient}
 }
 
 func (app *KVStoreApplication) StartClient() error {
@@ -79,12 +85,12 @@ func (app *KVStoreApplication) StartClient() error {
 	return nil
 }
 
-func (app *KVStoreApplication) PublishTx(tx types.Transaction) (res *abci.ResponseDeliverTx, err error) {
+func (app *KVStoreApplication) PublishTx(tx types.Transaction) (*ctypes.ResultBroadcastTx, error) {
 	bytes, err := json.Marshal(tx)
 	if err != nil {
 		return nil, err
 	}
-	return app.client.DeliverTxSync(bytes)
+	return app.httpclient.BroadcastTxSync(bytes)
 }
 
 func (app *KVStoreApplication) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
