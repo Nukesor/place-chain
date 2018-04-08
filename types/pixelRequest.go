@@ -26,10 +26,23 @@ func (pr *PixelRequest) String() string {
 func (pr *PixelRequest) IsValid() bool {
 	transaction := pr.ToTransaction()
 	bytes, err := transaction.SignedBytes()
+	fmt.Printf("=== Validating\n %v\n", transaction)
+	fmt.Printf("Bytes to validate: %s\n", string(bytes))
+	var key crypto.PrivKey
+	key.UnmarshalJSON([]byte(`
+	  {"type": "ed25519",
+		"data": "34480566DD7CF553E90732DA3B851AAE35A6719ABD12B83A5CC92C4056CFE048F1E7FA10D01D729BB5B72DEA6944113BCDDB5887EBEC79243CAE62E2D0D09C30"}`))
+	expectedSignature := key.Sign(bytes)
+	expectedJson, _ := expectedSignature.MarshalJSON()
+	fmt.Printf("Expecting signature %s\n", expectedJson)
+	fmt.Printf("Expected Signature verification result: %v\n", pr.PubKey.VerifyBytes(bytes, expectedSignature))
+	json, _ := transaction.Signature.MarshalJSON()
+	fmt.Printf("Signature: %s\n\n", json)
 	if err != nil {
 		fmt.Println("Could not serialize transaction bytes for verifying signature")
 		return false
 	}
+
 	return pr.PubKey.VerifyBytes(bytes, pr.Signature)
 }
 
