@@ -26,6 +26,12 @@ function getMousePos(canvas, evt) {
 	};
 }
 
+function toHexString(byteArray) {
+  return Array.from(byteArray, function(byte) {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join('')
+}
+
 function setPixel(canvas, pos, color) {
 	var rect = canvas.getBoundingClientRect();
 	var context = canvas.getContext('2d');
@@ -56,7 +62,10 @@ function refreshColorChooser(canvas) {
 $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
-	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y + ", owner=" + lastdata[pos.x][pos.y].Owner);
+	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
+	$("#p_name_owner").html(lastdata[pos.x][pos.y].Owner);
+	$("#p_bio_owner").html(lastdata[pos.x][pos.y].Bio);
+	$("#p_image_owner").html(lastdata[pos.x][pos.y].Image);
 });
 
 $("#place_chain_canvas").click(function(evt) {
@@ -86,8 +95,7 @@ console.log("bla");
 	name = $("#name_input").value;
 	bio = $("#bio_input").value;
 	privkey = tendermintcrypto.genPrivKeyEd25519().bytes;
-console.log(privkey);
-	$("#p_privkey").html = privkey;
+	$("#p_privkey").text(toHexString(privkey));
 	$("#loginregister_div").hide();
 	$("#profile_div").show();
 });
