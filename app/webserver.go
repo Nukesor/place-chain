@@ -23,7 +23,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if !pr.IsValid() {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		fmt.Printf("Invalid Transaction")
+		fmt.Printf("Unprocessable pixel request")
 		return
 	}
 	_, err = self.PlacechainApp.PublishTx(pr.ToTransaction())
@@ -56,16 +56,15 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
-	// TODO shouldn't this be done after the account is successfully created?
 	defer r.Body.Close()
-	account, err := rr.ToAccount()
-	if err != nil {
+
+	if !rr.IsValid() {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		fmt.Printf("Error creating account: %s\n", err)
-		fmt.Fprintf(w, "Error: %v", err)
+		fmt.Printf("Unprocessable pixel request")
 		return
 	}
-	_, err = self.PlacechainApp.PublishTx(account.ToTransaction())
+	_, err := self.PlacechainApp.PublishTx(rr.ToTransaction())
+
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
