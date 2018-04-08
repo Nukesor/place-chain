@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/tendermint/go-crypto"
 )
 
@@ -32,13 +31,12 @@ type PixelTransaction struct {
 
 func (tx *PixelTransaction) SignedBytes() (result []byte, err error) {
 	data := struct {
-		X      int
-		Y      int
-		Color  Color
-		Nonce  string
-		PubKey crypto.PubKey
+		X     int
+		Y     int
+		Color Color
+		Nonce string
 	}{
-		tx.X, tx.Y, tx.Color, tx.Nonce, tx.PubKey,
+		tx.X, tx.Y, tx.Color, tx.Nonce,
 	}
 
 	return json.Marshal(data)
@@ -48,8 +46,11 @@ func (tx *PixelTransaction) String() string {
 	if tx == nil {
 		return "nil Transaction"
 	}
-	return fmt.Sprintf("Transaction{%d %d %d %s}",
-		tx.X, tx.Y, tx.Color, tx.PubKey)
+	res, err := json.Marshal(tx)
+	if err != nil {
+		return "Transaction that could not be json encoded"
+	}
+	return string(res)
 }
 
 type RegisterTransaction struct {

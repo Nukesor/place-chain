@@ -26,10 +26,13 @@ func (pr *PixelRequest) String() string {
 func (pr *PixelRequest) IsValid() bool {
 	transaction := pr.ToTransaction()
 	bytes, err := transaction.SignedBytes()
+	fmt.Printf("=== Validating\n %v\n", transaction)
+	fmt.Printf("Bytes to validate: %s\n", string(bytes))
 	if err != nil {
 		fmt.Println("Could not serialize transaction bytes for verifying signature")
 		return false
 	}
+
 	return pr.PubKey.VerifyBytes(bytes, pr.Signature)
 }
 
