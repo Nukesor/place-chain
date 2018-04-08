@@ -1,3 +1,4 @@
+var crypto = require("./crypto");
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var pixelnumberdisplay = document.getElementById('pixelnumberdisplay');
@@ -5,6 +6,7 @@ var colorindex = 1;
 var size = 10;
 var lastdata;
 var countPixels = 0;
+var privkey;
 var colors = [
 	{},			//error color
 	{r: 0, g: 0, b: 0}, 	//black
@@ -80,7 +82,18 @@ $("#place_chain_color_chooser").click(function(evt) {
 	refreshColorChooser(canvascolor);
 });
 
+$("#register_button").click(function(evt) {
+	console.log("bla");
+	name = $("#name_input").value;
+	bio = $("#bio_input").value;
+	privkey = crypto.genPrivKeyEd25519();
+	$("#p_privkey").value = privkey;
+	$("#loginregister_div").hide();
+	$("#profile_div").show();
+});
+
 $(function() {
+	$("#profile_div").hide();
 	refreshColorChooser(canvascolor);
 	setInterval(function() {
 		$.get("pixels", function(data) {

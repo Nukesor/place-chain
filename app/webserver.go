@@ -54,6 +54,15 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/style.less", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/style.less")
 	})
+	http.HandleFunc("/crypto/index.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/crypto/index.js")
+	})
+	http.HandleFunc("/crypto/hash.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/crypto/hash.js")
+	})
+	http.HandleFunc("/crypto/hex.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/crypto/hex.js")
+	})
 	http.HandleFunc("/pixel", self.setPixel)
 	http.HandleFunc("/pixel/", self.setPixel)
 	http.HandleFunc("/pixels", self.getPixels)
