@@ -4,7 +4,7 @@
 # IMPORTANT !!!
 # CHANGE THESE OPTIONS IN YOUR CONFIG
 
-moniker = "Your hostname"
+moniker = "arch-x230"
 create_empty_blocks = false
 # Comma separated list of ip addresses
 seeds = "176.9.9.254:46656"
