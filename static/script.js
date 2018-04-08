@@ -107,13 +107,13 @@ $("#register_button").click(function(evt) {
 	}
 	myprivkey = tendermintcrypto.genPrivKeyEd25519();
 	var data = {
-		PubKey: { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes),
-		Profile: {Name: myname, Bio: mybio, AvatarUrl: myimg}	
-	}
+		PubKey: { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)},
+		Profile: {Name: myname, Bio: mybio, AvatarUrl: myimg}
+	};
 	$.ajax("register", {
 		data : JSON.stringify(data),
 		contentType : 'application/json',
-		type : 'POST',})
+		type : 'POST'})
 	.done(function(msg) {
 		$("#p_name").text(myname);
 		$("#p_bio").text(mybio);
