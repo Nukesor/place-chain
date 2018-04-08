@@ -66,9 +66,9 @@ $("#place_chain_canvas").mousemove(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	var pixel = {x: pos.x, y: pos.y, color: colorindex};
 	$("#coordinates").html("x=" + pixel.x + ", y=" + pixel.y);
-	$("#p_name_owner").text(lastdata[pos.x][pos.y].Owner);
-	$("#p_bio_owner").text(""+lastdata[pos.x][pos.y].Bio);
-	$("#p_image_owner").attr("src", lastdata[pos.x][pos.y].Image);
+	$("#p_name_owner").text(lastdata[pos.x][pos.y].Profile.Name);
+	$("#p_bio_owner").text(""+lastdata[pos.x][pos.y].Profile.Bio);
+	$("#p_image_owner").attr("src", lastdata[pos.x][pos.y].Profile.AvatarUrl);
 	$("#p_image_owner").attr("src", "https://upload.wikimedia.org/wikipedia/commons/4/4d/CowsGoMoOo_%28Alexander_Huard%29.png");
 });
 
