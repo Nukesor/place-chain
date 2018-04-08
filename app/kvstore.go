@@ -7,7 +7,6 @@ import (
 	//"errors"
 	"fmt"
 	"os"
-	"strconv"
 
 	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
@@ -172,10 +171,18 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 
 			if app.state.Db.Has(prefixKey(key)) {
 				// Get color out of key value store and convert it to int
-				colorBytes := app.state.Db.Get(prefixKey(key))
-				colorString := string(colorBytes[:])
-				color, _ := strconv.Atoi(colorString)
-				grid[x][y] = types.Pixel{Color: types.DataTypesName[color], Owner: "abc"}
+				bytes := app.state.Db.Get(prefixKey(key))
+				var transaction types.PixelTransaction
+				json.Unmarshal(bytes, &transaction)
+				profileKey, err := transaction.PubKey.MarshalJSON()
+
+				if err != nil {
+					fmt.Printf("Error while decoding Public Key for %v", transaction)
+				}
+
+				var profile types.Profile
+				json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &profile)
+				grid[x][y] = types.Pixel{Color: transaction.Color, Profile: profile}
 			}
 		}
 	}
