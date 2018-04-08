@@ -119,10 +119,8 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 
 func (app *KVStoreApplication) CheckTx(tx []byte) abci.ResponseCheckTx {
 	fmt.Println("========================== CHECK TX")
-	var message types.Transaction
-	err := json.Unmarshal(tx, &message)
-	if err != nil || !message.IsValid() {
-		fmt.Println("Received malformed payload", err)
+	if !validateTransactionBytes(tx) {
+		fmt.Println("Received malformed transaction payload")
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
@@ -176,4 +174,20 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 		}
 	}
 	return &grid
+}
+
+func validateTransactionBytes(txBytes []byte) bool {
+	var tx types.Tx
+	json.Unmarshal(txBytes, &tx)
+	isValid := false
+	if tx.Type == types.PIXEL_TRANSACTION {
+		var pt types.PixelTransaction
+		json.Unmarshal(txBytes, &pt)
+		isValid = pt.IsValid()
+	} else if tx.Type == types.REGISTER_TRANSACTION {
+		var rt types.RegisterTransaction
+		json.Unmarshal(txBytes, &rt)
+		isValid = rt.IsValid()
+	}
+	return isValid
 }
