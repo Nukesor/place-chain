@@ -42,3 +42,8 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 - Fläche zusammenhängender gleichfarbiger Pixel umfärben (kostet coins aber Mengenrabatt)
 - Hintergrundfarbe ändern (kostet extrem viele coins)
 - Farbe wechseln kostet extra coins
+
+### Hausaufgaben
+- verteilter Betrieb
+- signierte Teilnehmer
+- sybil Attacke verhindern
