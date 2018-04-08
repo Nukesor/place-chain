@@ -181,7 +181,10 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 				}
 
 				var profile types.Profile
-				json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &profile)
+				profileError := json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &profile)
+				if profileError != nil {
+					fmt.Printf("Error while decoding profile %v \n", err)
+				}
 				grid[x][y] = types.Pixel{Color: transaction.Color, Profile: profile}
 			}
 		}
