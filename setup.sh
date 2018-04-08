@@ -1,12 +1,7 @@
-go get -u -v github.com/satori/go.uuid
-go get -u -v github.com/tendermint/abci/cmd/abci-cli
-go get -u -v github.com/tendermint/tendermint/cmd/tendermint
-cd "$GOPATH/src/github.com/tendermint/tendermint/cmd/tendermint" && git checkout v0.17.1 \
-	&& go build && mv tendermint "$GOPATH/bin/"
-
-
+#!/usr/bin/env sh
+tendermint init
+sed -i "s/auth_enc\ =\ true/auth_enc\ =\ false/" $HOME/.tendermint/config/config.toml
 ln -sf "$(pwd)/tendermint.genesis.json" "$HOME/.tendermint/config/genesis.json"
 ln -sf "$(pwd)/pre-commit" ".git/hooks/pre-commit"
-
 
 echo "==== ✅  installation successful ===="

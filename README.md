@@ -1,6 +1,7 @@
 # PLACE CHAAAAAIN
 
 ## Setup:
+- Run `./setup-go.sh`
 - Run `./setup.sh`
 - Run `./run-core.sh`
 - Run `./run-node.sh`
