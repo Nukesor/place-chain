@@ -71,6 +71,9 @@ func (rt RegisterTransaction) GetTxType() TxType {
 }
 
 func (pt PixelTransaction) IsValid() bool {
+	if pt.PubKey.Empty() {
+		return false
+	}
 	bytes, err := pt.SignedBytes()
 	fmt.Printf("=== Validating\n %v\n", pt)
 	fmt.Printf("Bytes to validate: %s\n", string(bytes))
@@ -78,7 +81,6 @@ func (pt PixelTransaction) IsValid() bool {
 		fmt.Println("Could not serialize transaction bytes for verifying signature")
 		return false
 	}
-
 	return pt.PubKey.VerifyBytes(bytes, pt.Signature)
 }
 
