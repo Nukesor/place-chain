@@ -75,7 +75,11 @@ $("#place_chain_canvas").mousemove(function(evt) {
 $("#place_chain_canvas").click(function(evt) {
 	var pos = getMousePos(canvas, evt);
 	setPixel(canvas, pos, colors[colorindex]);
-	var pixel = {x: pos.x, y: pos.y, color: colorindex};
+	var pixel = {X: pos.x, Y: pos.y, Color: colorindex, Nonce: Math.random().toString(36).substring(7)};
+	var pixelstring = JSON.stringify(pixel);
+	var signature = myprivkey.signString(pixelstring);
+	pixel.PubKey = { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes)}
+	pixel.Signature = { type: "ed25519", data: toHexString(signature.bytes)}
 	$.ajax("pixel", {
 		data : JSON.stringify(pixel),
 		contentType : 'application/json',
@@ -102,9 +106,38 @@ $("#register_button").click(function(evt) {
 		myimg = "blank_profile_100.png"
 	}
 	myprivkey = tendermintcrypto.genPrivKeyEd25519();
+	var data = {
+		PubKey: { type: "ed25519", data: toHexString(myprivkey.makePubKey().bytes),
+		Profile: {Name: myname, Bio: mybio, AvatarUrl: myimg}	
+	}
+	$.ajax("register", {
+		data : JSON.stringify(data),
+		contentType : 'application/json',
+		type : 'POST',})
+	.done(function(msg) {
+		$("#p_name").text(myname);
+		$("#p_bio").text(mybio);
+		$("#p_privkey").text(toHexString(myprivkey.bytes));
+		$("#p_image").attr("src", myimg);
+		$("#loginregister_div").hide();
+		$("#profile_div").show();
+	})
+	.fail(function(xhr, status, error) {
+		$("#statusconsole").html("msg = " + status + ", error = " + error);
+	});
+});
+
+$("#login_button").click(function(evt) {
+	myname = $("#name_input").val();
+	mybio = $("#bio_input").val();
+	myimg = $("#img_input").val();
+	if(myimg == ""){
+		myimg = "blank_profile_100.png"
+	}
+	myprivkey = tendermintcrypto.genPrivKeyEd25519();
 	$("#p_name").text(myname);
 	$("#p_bio").text(mybio);
-	$("#p_privkey").text(toHexString(myprivkey));
+	$("#p_privkey").text(toHexString(myprivkey.bytes));
 	$("#p_image").attr("src", myimg);
 	$("#loginregister_div").hide();
 	$("#profile_div").show();
