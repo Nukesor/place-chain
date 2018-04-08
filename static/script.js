@@ -1,4 +1,3 @@
-var crypto = require("./crypto");
 var canvas = document.getElementById('place_chain_canvas');
 var canvascolor = document.getElementById('place_chain_color_chooser');
 var pixelnumberdisplay = document.getElementById('pixelnumberdisplay');
