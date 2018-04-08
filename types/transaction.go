@@ -17,6 +17,7 @@ const (
 type Transaction interface {
 	IsValid() bool
 	SignedBytes() ([]byte, error)
+	MarshalJSON() ([]byte, error)
 }
 
 type Tx struct {
@@ -89,6 +90,31 @@ func (tx *PixelTransaction) SignedBytes() ([]byte, error) {
 	return json.Marshal(data)
 }
 
+func (tx *PixelTransaction) MarshalJSON() ([]byte, error) {
+	data := struct {
+		Type TxType
+		X      int
+		Y      int
+		Color  Color
+		Nonce  string
+		PubKey crypto.PubKey
+	}{
+		tx.GetTxType(), tx.X, tx.Y, tx.Color, tx.Nonce, tx.PubKey,
+	}
+	return json.Marshal(data)
+}
+
 func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
 	return json.Marshal(rt.Acc.Profile)
+}
+
+func (tx *RegisterTransaction) MarshalJSON() ([]byte, error) {
+	data := struct {
+		Type TxType
+		Acc    Account
+		PubKey crypto.PubKey
+	}{
+		tx.GetTxType(), *tx.Acc, tx.PubKey,
+	}
+	return json.Marshal(data)
 }

@@ -103,22 +103,25 @@ func (app *KVStoreApplication) DeliverTx(tx []byte) abci.ResponseDeliverTx {
 
 	var message types.Tx
 	json.Unmarshal(tx, &message) // pass message to get TxType
-
+	var err error
 	if message.Type == types.PIXEL_TRANSACTION {
 		var pt types.PixelTransaction
 		json.Unmarshal(tx, &pt)
 		key = []byte(fmt.Sprintf("%d,%d", pt.X, pt.Y))
-		value, _ = pt.SignedBytes()
+		value, err = pt.MarshalJSON()
 	} else if message.Type == types.REGISTER_TRANSACTION {
 		var rt types.RegisterTransaction
 		json.Unmarshal(tx, &rt)
 		key, _ = rt.Acc.PubKey.MarshalJSON()
-		value, _ = rt.SignedBytes()
+		value, err = rt.MarshalJSON()
+	}
+	if err != nil {
+		return abci.ResponseDeliverTx{Code: code.CodeTypeEncodingError}
 	}
 
 	app.state.Db.Set(prefixKey(key), value)
 	app.state.Size += 1
-	defer fmt.Println("========================== SCCESFULLY DELIVERED TX")
+	fmt.Println("========================== SCCESFULLY DELIVERED TX")
 
 	return abci.ResponseDeliverTx{Code: code.CodeTypeOK}
 }
@@ -180,12 +183,9 @@ func (app *KVStoreApplication) GetGrid() *types.Grid {
 					fmt.Printf("Error while decoding Public Key for %v", transaction)
 				}
 
-				var profile types.Profile
-				profileError := json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &profile)
-				if profileError != nil {
-					fmt.Printf("Error while decoding profile %v \n", err)
-				}
-				grid[x][y] = types.Pixel{Color: transaction.Color, Profile: profile}
+				var rt types.RegisterTransaction
+				_ = json.Unmarshal(app.state.Db.Get(prefixKey(profileKey)), &rt)
+				grid[x][y] = types.Pixel{Color: transaction.Color, Profile: rt.Acc.Profile}
 			}
 		}
 	}
