@@ -1,18 +1,10 @@
-FROM golang:1.10.1
+FROM alpine:latest
 
-WORKDIR /opt/tendermint
+WORKDIR /opt/place-chain
+COPY dist/place-chain .
 
-COPY setup.sh /opt/tendermint
-RUN ./setup.sh
+RUN ./place-chain init --chain-id foo-chain
 
-COPY app /opt/tendermint
-COPY cmd /opt/tendermint
-COPY helper /opt/tendermint
-COPY static /opt/tendermint
-COPY types /opt/tendermint
+EXPOSE 46656 46657 80
 
-COPY .tendermint.genesis.json /opt/tendermint
-
-RUN tendermint init
-
-CMD helper/start.sh
+CMD ["./place-chain", "start", "--full-node"] 
