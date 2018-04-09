@@ -83,7 +83,6 @@ func startFullNode(placechainApp *app.PlacechainApp) error {
 		return err
 	}
 
-
 	privValidatorFile := cfg.PrivValidatorFile()
 	privValidator := types.LoadOrGenPrivValidatorFS(privValidatorFile)
 	node, err := tmNode.NewNode(cfg,

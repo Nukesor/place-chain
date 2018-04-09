@@ -6,6 +6,33 @@
 - Run `./run-core.sh`
 - Run `./run-node.sh`
 
+## Run
+
+Use the commands, find them in `cmd/placechainnode/commands`.
+
+*Setup new node*
+
+    $ go run cmd/placechainnode/main.go init --chain-id my-chain
+
+This will generate a folder in your home directory called `place-chain`, where all needed files for the blockchain are stored.
+
+*Run Full Tendermint Node*
+
+    $ go run cmd/placechainnode/main.go start --full-node
+
+This will start three things:
+- A fully fledged tendermint node
+- A place-chain application
+- A ABCI server
+
+The ABCI server takes inbound connections from the TM node core and dispatches it to our custom place-chain app.
+
+*Run ABCI Server only, that hosts our app*
+
+    $ go run cmd/placechainnode/main.go start
+
+This will only start a ABCI server together with our custom app. Any tendermint core process may then connect to the ABCI server with our app.
+
 ### Distributed setup
 
 
