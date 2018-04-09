@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	defaultLogLevel = "error"
-	FlagLogLevel    = "log_level"
+	defaultLogLevel = "info"
+	FlagLogLevel    = "log-level"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "Place chain",
+	Use:   "place-chain",
 	Short: "Root place chain cmd",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
 		level := viper.GetString(FlagLogLevel)

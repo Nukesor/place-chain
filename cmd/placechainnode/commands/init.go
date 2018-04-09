@@ -61,5 +61,6 @@ func initFiles(cmd *cobra.Command, args []string) error {
 		}
 		logger.Info("Generated genesis file", "path", genFile)
 	}
+
 	return nil
 }

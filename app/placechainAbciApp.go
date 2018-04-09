@@ -6,13 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 
-	abcicli "github.com/tendermint/abci/client"
 	"github.com/tendermint/abci/example/code"
 	abci "github.com/tendermint/abci/types"
 	dbm "github.com/tendermint/tmlibs/db"
-	"github.com/tendermint/tmlibs/log"
 
 	// Tendermint http client
 	httpcli "github.com/tendermint/tendermint/rpc/client"
@@ -60,29 +57,13 @@ type PlacechainApp struct {
 	abci.BaseApplication
 
 	state      types.AppState
-	client     abcicli.Client
 	httpClient httpcli.HTTP
 }
 
 func NewPlacechainApp() *PlacechainApp {
 	state := loadState(dbm.NewMemDB())
 	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
-	return &PlacechainApp{state: state, client: nil, httpClient: *httpClient}
-}
-
-func (app *PlacechainApp) StartClient() error {
-	client, err := abcicli.NewClient("tcp://0.0.0.0:46658", "socket", false)
-	if err != nil {
-		return err
-	}
-	app.client = client
-	allowLevel, err := log.AllowLevel("debug")
-	logger := log.NewFilter(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), allowLevel)
-	client.SetLogger(logger.With("module", "abci-client"))
-	if err := client.Start(); err != nil {
-		return err
-	}
-	return nil
+	return &PlacechainApp{state: state, httpClient: *httpClient}
 }
 
 func (app *PlacechainApp) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
@@ -182,6 +163,11 @@ func (app *PlacechainApp) GetGrid() *types.Grid {
 		}
 	}
 	return &grid
+}
+
+func (app *PlacechainApp) LoadGenesis(genesisFile string) error {
+	// TODO handle custom content in genesis file.
+	return nil
 }
 
 func toTransaction(txBytes []byte) (types.Transaction, error) {
