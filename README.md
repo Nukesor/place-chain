@@ -6,19 +6,37 @@
 - Run `./run-core.sh`
 - Run `./run-node.sh`
 
+## Build
+
+Use the Makefile
+
+    $ make build
+
+After that, you have a folder called `dist/` with the `place-chain` binary in it. You can also directly install the binary via 
+
+    $ make install
+
+To create a lightweight docker container you can call
+
+    $ make container
+
 ## Run
 
 Use the commands, find them in `cmd/placechainnode/commands`.
+Either you build first to get the binary or you can directly run the commands via 
+
+    $ go run cmd/placechainnode/main.go <command>
+
 
 *Setup new node*
 
-    $ go run cmd/placechainnode/main.go init --chain-id my-chain
+    $ place-chain init --chain-id my-chain
 
 This will generate a folder in your home directory called `place-chain`, where all needed files for the blockchain are stored.
 
 *Run Full Tendermint Node*
 
-    $ go run cmd/placechainnode/main.go start --full-node
+    $ place-chain start --full-node
 
 This will start three things:
 - A fully fledged tendermint node
@@ -27,9 +45,9 @@ This will start three things:
 
 The ABCI server takes inbound connections from the TM node core and dispatches it to our custom place-chain app.
 
-*Run ABCI Server only, that hosts our app*
+*Run ABCI Server only*
 
-    $ go run cmd/placechainnode/main.go start
+    $ place-chain start
 
 This will only start a ABCI server together with our custom app. Any tendermint core process may then connect to the ABCI server with our app.
 
