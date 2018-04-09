@@ -11,6 +11,7 @@ func main() {
 
 	rt.AddCommand(
 		commands.StartCmd,
+		commands.InitCmd,
 	)
 
 	cmd := cli.PrepareMainCmd(rt, "BC", os.ExpandEnv("$HOME/.place-chain"))
