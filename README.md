@@ -62,24 +62,34 @@ The ABCI server takes inbound connections from the TM node core and dispatches i
 
 This will only start a ABCI server together with our custom app. Any tendermint core process may then connect to the ABCI server with our app.
 
-### Distributed setup
-
-
-## Description:
+## Feature description
 
 Inspired by r/place (last years reddit april prank).
-
 We focus the application around a canvas of size `N x N`. Participants set pixels in a distributed fashion.
+
+In order to set pixels to the canvas, users have to register. Registering includes:
+- upload of a public key, use elliptic-curve `ed25519`
+- upload a user profile (`{name, bio, avatarUrl}`)
+User registration is placed onto the blockchain as a transaction.
+
+Registered users can set pixels. To claim ownership of a pixel, a user signs the pixel coordinates and color with the private key, which then is verified with the public key that is stored in the blockchain.
+
+When a pixel is set, this is done via a transaction of the blockchain. Painting the picture at some given point in time means traversing back the block chain until a value for a pixel is found.
+
+##### Example Picture
+![example image](img/place-chain_example_1.png)
+
+##### Original idea(s):
 
 The right to set a pixel on the canvas is bought with a crypto coin. The crypto coin we design in this project is called `place-coin`.
 
-When a pixel is set, this is done via a transaction of the blockchain. Painting the picture means traversing back the block chain until a value for a pixel is found.
+- earn coins when you colored them
+- Fläche zusammenhängender gleichfarbiger Pixel umfärben (kostet coins aber Mengenrabatt)
+- Hintergrundfarbe ändern (kostet extrem viele coins)
+- Farbe wechseln kostet extra coins
 
-#### Example
-![example image](img/place-chain_example_1.png)
+Update: We will *not* pursue the `place-coin` idea. See the homework section instead.
 
-### Architecture
-![arcitecture](img/architecture.jpg)
 
 ### Participants:
 
@@ -91,16 +101,7 @@ When a pixel is set, this is done via a transaction of the blockchain. Painting 
 - Benjamin Warnke
 
 
-### Core-Features
-- set colors of pixels
-
-### Possible Features
-- earn coins when you colored them
-- Fläche zusammenhängender gleichfarbiger Pixel umfärben (kostet coins aber Mengenrabatt)
-- Hintergrundfarbe ändern (kostet extrem viele coins)
-- Farbe wechseln kostet extra coins
-
-### Hausaufgaben
+### Homework
 - verteilter Betrieb
 - signierte Teilnehmer
 - sybil Attacke verhindern
