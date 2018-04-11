@@ -37,4 +37,4 @@ get-tools:
 install-deps:
 	@rm -rf vendor/
 	@echo "--> Running dep"
-	@dep ensure
+	@dep ensure -v

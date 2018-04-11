@@ -1,10 +1,21 @@
 # PLACE CHAAAAAIN
 
-## Setup:
-- Run `./setup-go.sh`
-- Run `./setup.sh`
-- Run `./run-core.sh`
-- Run `./run-node.sh`
+## Initial install
+
+##### $GOPATH and checkout
+
+You *must* checkout this repository into `$GOPATH/src/place-chain`. Otherwise you are in eternal hell and nothing will ever work.
+
+##### Install / Dev Env
+
+You have to install required tools and dependencies to work with `place-chain`. Everything is wrapped with the Makefile. You must have `go` installed, `go version >=1.9`.
+
+    $ make get-tools
+    $ make install-deps
+
+Or simply
+
+    $ make all
 
 ## Build
 
