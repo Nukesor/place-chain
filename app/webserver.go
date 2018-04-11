@@ -1,7 +1,7 @@
 package app
 
 import (
-	"../types"
+	"place-chain/types"
 	"encoding/json"
 	"fmt"
 	"net/http"

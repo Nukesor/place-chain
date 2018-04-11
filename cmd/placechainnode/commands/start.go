@@ -17,7 +17,7 @@ import (
 	"github.com/tendermint/tendermint/proxy"
 	"github.com/tendermint/tendermint/types"
 
-	"../../../app"
+	"place-chain/app"
 )
 
 var StartCmd = &cobra.Command{

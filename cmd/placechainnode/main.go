@@ -1,7 +1,7 @@
 package main
 
 import (
-	commands "./commands"
+	"place-chain/cmd/placechainnode/commands"
 	"github.com/tendermint/tmlibs/cli"
 	"os"
 )

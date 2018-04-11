@@ -1,7 +1,7 @@
 package app
 
 import (
-	"../types"
+	"place-chain/types"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
