@@ -45,6 +45,12 @@ Either you build first to get the binary or you can directly run the commands vi
 
 This will generate a folder in your home directory called `place-chain`, where all needed files for the blockchain are stored.
 
+*Reset node configuration*
+
+    $ make clean-tendermint
+    
+This will remove the folder `~/.place-chain` which contains all tendermint configuration.
+
 *Run Full Tendermint Node*
 
     $ place-chain start --full-node
