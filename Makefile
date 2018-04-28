@@ -8,6 +8,11 @@ APP_BASE=${HOME}/.place-chain
 .PHONY: all
 all: get-tools install-deps clean build
 
+.PHONY: run
+run:
+	@echo "--> Sourcing secrets and running"
+	source ./source_secrets.sh && go run cmd/placechainnode/main.go start fullnode
+
 .PHONY: clean
 clean:
 	@echo "--> Clean dist"
