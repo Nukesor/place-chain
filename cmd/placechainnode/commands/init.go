@@ -19,7 +19,7 @@ var InitCmd = &cobra.Command{
 }
 
 const (
-	FlagChainId = "place-chain"
+	FlagChainId = "chain-id"
 )
 
 var PubKeys = []map[string]string {
@@ -31,7 +31,7 @@ var PubKeys = []map[string]string {
 
 func init() {
 	flags := InitCmd.Flags()
-	flags.String(FlagChainId, cmn.Fmt("place-chain", cmn.RandStr(6)), "Chain ID")
+	flags.String(FlagChainId, "place-chain", "Chain ID")
 	tcmd.AddNodeFlags(InitCmd)
 }
 

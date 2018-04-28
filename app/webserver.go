@@ -87,7 +87,11 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (webServer *WebServer) isRegistered(w http.ResponseWriter, r *http.Request) {
-	twitterHandle := r.URL.Query()["twitterHandle"][0]
+	twitterHandle := r.URL.Query().Get("twitterHandle")
+	if twitterHandle == "" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	_, err := webServer.PlacechainApp.GetPubKey(twitterHandle)
 
 	if err != nil {

@@ -43,3 +43,7 @@ install-deps:
 	@rm -rf vendor/
 	@echo "--> Running dep"
 	@dep ensure -v
+
+.PHONY: clean-tendermint
+clean-tendermint:
+	rm -rf ~/.place-chain
