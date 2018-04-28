@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/tendermint/go-crypto"
 )
 
@@ -15,8 +14,9 @@ const (
 )
 
 type Transaction interface {
-	IsValid() bool
 	SignedBytes() ([]byte, error)
+	GetTwitterHandle() string
+	GetTxType() TxType
 }
 
 // -------- TransactionWithType
@@ -29,29 +29,17 @@ type TransactionWithType struct {
 // -------- PixelTransaction
 
 type PixelTransaction struct {
-	Type      TxType
-	X         int
-	Y         int
-	Color     Color
-	Nonce     string
-	PubKey    crypto.PubKey
-	Signature crypto.Signature
+	Type          TxType
+	X             int
+	Y             int
+	Color         Color
+	Nonce         string
+	TwitterHandle string
+	Signature     crypto.Signature
 }
 
 func (pt PixelTransaction) GetTxType() TxType {
 	return PIXEL_TRANSACTION
-}
-
-func (pt PixelTransaction) IsValid() bool {
-	if pt.PubKey.Empty() {
-		return false
-	}
-	bytes, err := pt.SignedBytes()
-	if err != nil {
-		fmt.Println("PixelTransaction: Could not serialize transaction bytes for verifying signature")
-		return false
-	}
-	return pt.PubKey.VerifyBytes(bytes, pt.Signature)
 }
 
 func (pt PixelTransaction) SignedBytes() ([]byte, error) {
@@ -67,23 +55,35 @@ func (pt PixelTransaction) SignedBytes() ([]byte, error) {
 	return json.Marshal(data)
 }
 
+func (pt PixelTransaction) GetTwitterHandle() string {
+	return pt.TwitterHandle
+}
+
 // -------- RegisterTransaction
 
 type RegisterTransaction struct {
-	Type    TxType
-	Profile Profile
-	PubKey  crypto.PubKey
+	Type            TxType
+	TwitterHandle   string
+	UserPubKey      crypto.PubKey
+	ValidatorPubKey crypto.PubKey
+	Signature       crypto.Signature
 }
 
 func (rt RegisterTransaction) GetTxType() TxType {
 	return REGISTER_TRANSACTION
 }
 
-func (rt RegisterTransaction) IsValid() bool {
-	// TODO: implement with signing
-	return true
+func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
+	data := struct {
+		TwitterHandle string
+		UserPubKey    crypto.PubKey
+	}{
+		rt.TwitterHandle, rt.UserPubKey,
+	}
+
+	return json.Marshal(data)
 }
 
-func (rt RegisterTransaction) SignedBytes() ([]byte, error) {
-	return json.Marshal(rt.Profile)
+func (rt RegisterTransaction) GetTwitterHandle() string {
+	return rt.TwitterHandle
 }

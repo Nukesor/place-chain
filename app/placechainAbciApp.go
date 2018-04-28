@@ -1,14 +1,15 @@
 package app
 
 import (
-	"place-chain/types"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"place-chain/types"
 
 	"github.com/tendermint/abci/example/code"
 	abci "github.com/tendermint/abci/types"
+	"github.com/tendermint/go-crypto"
 	dbm "github.com/tendermint/tmlibs/db"
 
 	// Tendermint http client
@@ -93,7 +94,7 @@ func (app *PlacechainApp) DeliverTx(txBytes []byte) abci.ResponseDeliverTx {
 	} else if tx.Type == types.REGISTER_TRANSACTION {
 		var rt types.RegisterTransaction
 		json.Unmarshal(txBytes, &rt)
-		key, _ = rt.PubKey.MarshalJSON()
+		key, _ = rt.UserPubKey.MarshalJSON()
 	}
 
 	if err != nil {
@@ -115,11 +116,40 @@ func (app *PlacechainApp) CheckTx(txBytes []byte) abci.ResponseCheckTx {
 		fmt.Println("CheckTx:", err)
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
-	if !tx.IsValid() {
-		fmt.Println("CheckTx: invalid transaction content", err)
+
+	if !app.IsTransactionValid(tx) {
 		return abci.ResponseCheckTx{Code: code.CodeTypeEncodingError}
 	}
+
 	return abci.ResponseCheckTx{Code: code.CodeTypeOK}
+}
+
+func (app *PlacechainApp) IsTransactionValid(tx types.Transaction) bool {
+	twitterHandle := tx.GetTwitterHandle()
+	if twitterHandle == "" {
+		return false
+	}
+
+	bytes, err := tx.SignedBytes()
+	if err != nil {
+		fmt.Println("Transaction: Could not serialize transaction bytes for verifying signature")
+		return false
+	}
+
+	if pt, isPt := tx.(types.PixelTransaction); isPt {
+		pubKey, err := app.GetPubKey(pt.GetTwitterHandle())
+		if err != nil {
+			return false
+		}
+
+		return pubKey.VerifyBytes(bytes, pt.Signature)
+	} else if rt, isRt := tx.(types.RegisterTransaction); isRt {
+		// TODO verify validator pubkey
+		return rt.ValidatorPubKey.VerifyBytes(bytes, rt.Signature)
+	}
+
+	fmt.Printf("Transaction: Can't verify transaction %v\n", tx)
+	return false
 }
 
 func (app *PlacechainApp) Commit() abci.ResponseCommit {
@@ -151,15 +181,8 @@ func (app *PlacechainApp) GetGrid() *types.Grid {
 			bytes := app.state.Db.Get(key)
 			var pt types.PixelTransaction
 			json.Unmarshal(bytes, &pt)
-			pixelPublicKey, err := pt.PubKey.MarshalJSON()
 
-			if err != nil {
-				fmt.Printf("Error while decoding Public Key for PixelTransaction %v", pt)
-			}
-
-			var rt types.RegisterTransaction
-			json.Unmarshal(app.state.Db.Get(prefixKey(pixelPublicKey)), &rt)
-			grid[x][y] = types.Pixel{Color: pt.Color, Profile: rt.Profile}
+			grid[x][y] = types.Pixel{Color: pt.Color, TwitterHandle: pt.TwitterHandle}
 		}
 	}
 	return &grid
@@ -183,4 +206,22 @@ func toTransaction(txBytes []byte) (types.Transaction, error) {
 		return rt, nil
 	}
 	return nil, errors.New("Cannot convert []byte to Transaction, unknown type")
+}
+
+func (app *PlacechainApp) GetPubKey(twitterHandle string) (crypto.PubKey, error) {
+	bytes := app.state.Db.Get(prefixKey([]byte(twitterHandle)))
+	var pubKey crypto.PubKey
+	err := json.Unmarshal(bytes, &pubKey)
+	return pubKey, err
+}
+
+func (app *PlacechainApp) RegisterUser(rr types.RegisterRequest) error {
+	// TODO fix this
+	isValidator := true
+	if isValidator {
+		// tx := rr.ToTransaction(nil, nil)
+		// app.PublishTx(tx)
+		return nil
+	}
+	return errors.New("I'm not a validator, can't create user")
 }

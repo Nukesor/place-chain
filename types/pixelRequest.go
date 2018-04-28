@@ -5,16 +5,12 @@ import (
 )
 
 type PixelRequest struct {
-	X         int
-	Y         int
-	Color     Color
-	Nonce     string
-	PubKey    crypto.PubKey
-	Signature crypto.Signature
-}
-
-func (pr PixelRequest) IsValid() bool {
-	return pr.ToTransaction().IsValid()
+	X             int
+	Y             int
+	Color         Color
+	Nonce         string
+	TwitterHandle string
+	Signature     crypto.Signature
 }
 
 func (pr PixelRequest) ToTransaction() *PixelTransaction {
@@ -24,7 +20,7 @@ func (pr PixelRequest) ToTransaction() *PixelTransaction {
 		pr.Y,
 		pr.Color,
 		pr.Nonce,
-		pr.PubKey,
+		pr.TwitterHandle,
 		pr.Signature,
 	}
 }

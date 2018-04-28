@@ -122,7 +122,7 @@ func blockchainGenesis(placechainApp *app.PlacechainApp) error {
 			return err
 		}
 	} else {
-		errors.New(fmt.Sprintf("No genesis file at %s, skipping...\n", genesisFile))
+		return errors.New(fmt.Sprintf("No genesis file at %s, skipping...\n", genesisFile))
 	}
 	return nil
 }

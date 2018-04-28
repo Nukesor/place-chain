@@ -1,10 +1,10 @@
 package app
 
 import (
-	"place-chain/types"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"place-chain/types"
 )
 
 type WebServer struct {
@@ -21,7 +21,7 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	if !pr.IsValid() {
+	if !self.PlacechainApp.IsTransactionValid(pr.ToTransaction()) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		fmt.Printf("Unprocessable pixel request")
 		return
@@ -39,7 +39,7 @@ func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
 	b, err := json.Marshal(data)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Printf("Error returning pixels: ", err)
+		fmt.Printf("Error returning pixels: %v ", err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -63,13 +63,23 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Unprocessable pixel request")
 		return
 	}
-	_, err := self.PlacechainApp.PublishTx(rr.ToTransaction())
 
-	if err != nil {
+	if err := self.PlacechainApp.RegisterUser(rr); err != nil {
 		fmt.Fprintf(w, "Error: %s", err)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (webServer *WebServer) isRegistered(w http.ResponseWriter, r *http.Request) {
+	twitterHandle := r.URL.Query()["twitterHandle"][0]
+	_, err := webServer.PlacechainApp.GetPubKey(twitterHandle)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	return
 }
 
 func (self *WebServer) LaunchHTTP() {
@@ -95,6 +105,8 @@ func (self *WebServer) LaunchHTTP() {
 
 	http.HandleFunc("/register", self.register)
 	http.HandleFunc("/register/", self.register)
+	http.HandleFunc("/isRegistered", self.isRegistered)
+	http.HandleFunc("/isRegistered/", self.isRegistered)
 	port := "8080"
 	fmt.Printf("Listening on http://localhost:%s\n", port)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
