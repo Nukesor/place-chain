@@ -26,27 +26,6 @@ var (
 // TODO: make configurable
 const gridsize int = 20
 
-func loadState(db dbm.DB) types.AppState {
-	stateBytes := db.Get(stateKey)
-	var state types.AppState
-	if len(stateBytes) != 0 {
-		err := json.Unmarshal(stateBytes, &state)
-		if err != nil {
-			panic(err)
-		}
-	}
-	state.Db = db
-	return state
-}
-
-func saveState(state types.AppState) {
-	stateBytes, err := json.Marshal(state)
-	if err != nil {
-		panic(err)
-	}
-	state.Db.Set(stateKey, stateBytes)
-}
-
 func prefixKey(key []byte) []byte {
 	return append(kvPairPrefixKey, key...)
 }
@@ -64,7 +43,8 @@ type PlacechainApp struct {
 }
 
 func NewPlacechainApp(config *cfg.Config) *PlacechainApp {
-	state := loadState(dbm.NewMemDB())
+	var state types.AppState
+	state.Db = dbm.NewMemDB()
 	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
 	return &PlacechainApp{state: state, httpClient: *httpClient, config: config}
 }
@@ -161,7 +141,6 @@ func (app *PlacechainApp) Commit() abci.ResponseCommit {
 	binary.PutVarint(appHash, app.state.Size)
 	app.state.AppHash = appHash
 	app.state.Height += 1
-	saveState(app.state)
 	return abci.ResponseCommit{Data: appHash}
 }
 
