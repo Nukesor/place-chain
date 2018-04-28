@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	cfg "github.com/tendermint/tendermint/config"
 	"os"
 	"os/user"
 	"path"
@@ -43,7 +44,12 @@ func init() {
 }
 
 func startCmd(cmd *cobra.Command, args []string) error {
-	placechainApp := app.NewPlacechainApp()
+	config, err := tcmd.ParseConfig()
+	if err != nil {
+		return err
+	}
+
+	placechainApp := app.NewPlacechainApp(config)
 
 	// launch placechain webserver
 	go (&app.WebServer{placechainApp}).LaunchHTTP()
@@ -54,7 +60,7 @@ func startCmd(cmd *cobra.Command, args []string) error {
 	} else {
 		logger.Info("Starting placechain with full tendermint node integrated")
 		// start the app with tendermint in-process
-		return startFullNode(placechainApp)
+		return startFullNode(placechainApp, config)
 	}
 }
 
@@ -76,19 +82,14 @@ func startAbciOnly(placechainApp *app.PlacechainApp) error {
 	return nil
 }
 
-func startFullNode(placechainApp *app.PlacechainApp) error {
+func startFullNode(placechainApp *app.PlacechainApp, config *cfg.Config) error {
 	// Create & start node
-	cfg, err := tcmd.ParseConfig()
-	if err != nil {
-		return err
-	}
-
-	privValidatorFile := cfg.PrivValidatorFile()
+	privValidatorFile := config.PrivValidatorFile()
 	privValidator := types.LoadOrGenPrivValidatorFS(privValidatorFile)
-	node, err := tmNode.NewNode(cfg,
+	node, err := tmNode.NewNode(config,
 		privValidator,
 		proxy.NewLocalClientCreator(placechainApp),
-		tmNode.DefaultGenesisDocProviderFunc(cfg),
+		tmNode.DefaultGenesisDocProviderFunc(config),
 		tmNode.DefaultDBProvider, logger.With("module", "node"))
 	if err != nil {
 		return err

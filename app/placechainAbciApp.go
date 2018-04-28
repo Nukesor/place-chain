@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	cfg "github.com/tendermint/tendermint/config"
 	"place-chain/types"
 
 	"github.com/tendermint/abci/example/code"
@@ -59,12 +60,13 @@ type PlacechainApp struct {
 
 	state      types.AppState
 	httpClient httpcli.HTTP
+	config     *cfg.Config
 }
 
-func NewPlacechainApp() *PlacechainApp {
+func NewPlacechainApp(config *cfg.Config) *PlacechainApp {
 	state := loadState(dbm.NewMemDB())
 	httpClient := httpcli.NewHTTP("tcp://0.0.0.0:46657", "/websocket")
-	return &PlacechainApp{state: state, httpClient: *httpClient}
+	return &PlacechainApp{state: state, httpClient: *httpClient, config: config}
 }
 
 func (app *PlacechainApp) Info(req abci.RequestInfo) (resInfo abci.ResponseInfo) {
@@ -223,5 +225,6 @@ func (app *PlacechainApp) RegisterUser(rr types.RegisterRequest) error {
 		// app.PublishTx(tx)
 		return nil
 	}
+
 	return errors.New("I'm not a validator, can't create user")
 }
