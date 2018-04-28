@@ -50,9 +50,10 @@ func startCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	placechainApp := app.NewPlacechainApp(config)
+	twitterCache := app.NewTwitterCache()
 
 	// launch placechain webserver
-	go (&app.WebServer{placechainApp}).LaunchHTTP()
+	go (&app.WebServer{placechainApp, twitterCache}).LaunchHTTP()
 
 	if !viper.GetBool(FullNode) {
 		logger.Info("Starting placechain abci only")

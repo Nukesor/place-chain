@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path"
 	"place-chain/types"
 )
 
 type WebServer struct {
 	PlacechainApp *PlacechainApp
+	TwitterCache  *TwitterCache
 }
 
 func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +34,19 @@ func (self *WebServer) setPixel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (ws *WebServer) twitterUser(w http.ResponseWriter, r *http.Request) {
+	name := path.Base(r.URL.Path)
+	user := ws.TwitterCache.getUser(name)
+	responseData, err := json.Marshal(user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Printf("Error returning user: ", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(responseData)
 }
 
 func (self *WebServer) getPixels(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +87,11 @@ func (self *WebServer) register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (webServer *WebServer) isRegistered(w http.ResponseWriter, r *http.Request) {
-	twitterHandle := r.URL.Query()["twitterHandle"][0]
+	twitterHandle := r.URL.Query().Get("twitterHandle")
+	if twitterHandle == "" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	_, err := webServer.PlacechainApp.GetPubKey(twitterHandle)
 
 	if err != nil {
@@ -98,13 +117,19 @@ func (self *WebServer) LaunchHTTP() {
 	http.HandleFunc("/bundle.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/bundle.js")
 	})
+
 	http.HandleFunc("/pixel", self.setPixel)
 	http.HandleFunc("/pixel/", self.setPixel)
+
 	http.HandleFunc("/pixels", self.getPixels)
 	http.HandleFunc("/pixels/", self.getPixels)
 
 	http.HandleFunc("/register", self.register)
 	http.HandleFunc("/register/", self.register)
+
+	http.HandleFunc("/profile", self.twitterUser)
+	http.HandleFunc("/profile/", self.twitterUser)
+
 	http.HandleFunc("/isRegistered", self.isRegistered)
 	http.HandleFunc("/isRegistered/", self.isRegistered)
 	port := "8080"

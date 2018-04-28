@@ -49,6 +49,12 @@
   name = "github.com/tendermint/tmlibs"
   version = "0.8.1"
 
+[[constraint]]
+  name = "github.com/dghubble/go-twitter"
+
+[[constraint]]
+  name = "github.com/dghubble/oauth1"
+
 [prune]
   go-tests = true
   unused-packages = true
