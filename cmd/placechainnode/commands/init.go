@@ -31,7 +31,7 @@ var PubKeys = []map[string]string {
 
 func init() {
 	flags := InitCmd.Flags()
-	flags.String(FlagChainId, cmn.Fmt("place-chain-%v", cmn.RandStr(6)), "Chain ID")
+	flags.String(FlagChainId, "place-chain", "Chain ID")
 	tcmd.AddNodeFlags(InitCmd)
 }
 
