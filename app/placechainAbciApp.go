@@ -12,6 +12,9 @@ import (
 	abci "github.com/tendermint/abci/types"
 	"github.com/tendermint/go-crypto"
 	dbm "github.com/tendermint/tmlibs/db"
+	cmn "github.com/tendermint/tmlibs/common"
+	tmTypes "github.com/tendermint/tendermint/types"
+
 
 	// Tendermint http client
 	httpcli "github.com/tendermint/tendermint/rpc/client"
@@ -96,7 +99,7 @@ func (app *PlacechainApp) DeliverTx(txBytes []byte) abci.ResponseDeliverTx {
 	} else if tx.Type == types.REGISTER_TRANSACTION {
 		var rt types.RegisterTransaction
 		json.Unmarshal(txBytes, &rt)
-		key, _ = rt.UserPubKey.MarshalJSON()
+		key = []byte(rt.TwitterHandle)
 	}
 
 	if err != nil {
@@ -218,13 +221,33 @@ func (app *PlacechainApp) GetPubKey(twitterHandle string) (crypto.PubKey, error)
 }
 
 func (app *PlacechainApp) RegisterUser(rr types.RegisterRequest) error {
-	// TODO fix this
-	isValidator := true
-	if isValidator {
-		// tx := rr.ToTransaction(nil, nil)
-		// app.PublishTx(tx)
-		return nil
+	privValFile := app.config.PrivValidatorFile()
+	if !cmn.FileExists(privValFile) {
+		return errors.New("I'm not a validator, can't create user")
 	}
+	if len(app.state.Db.Get(prefixKey([]byte(rr.TwitterHandle)))) > 0 {
+		return errors.New("This twitterHandle is already registered")
+	}
+	if err := callTwitter(); err != nil {
+		return err
+	}
+	privValidator := tmTypes.LoadPrivValidatorFS(privValFile)
+	data := struct {
+		TwitterHandle string
+		UserPubKey    crypto.PubKey
+	}{
+		rr.TwitterHandle, rr.PubKey,
+	}
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	signature := privValidator.PrivKey.Sign(bytes)
+	tx := rr.ToTransaction(privValidator.PubKey, signature)
+	app.PublishTx(tx)
+	return nil
+}
 
-	return errors.New("I'm not a validator, can't create user")
+func callTwitter() error {
+	return nil
 }
